@@ -8,7 +8,7 @@ dependencies:
   - pip
   - pip:
       - streamlit
-      - torch --index-url https://download.pytorch.org/whl/cpu
+      - torch
       - torch-geometric
       - numpy
       - pandas
