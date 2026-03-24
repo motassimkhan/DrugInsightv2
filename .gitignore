@@ -28,5 +28,11 @@ Thumbs.db
 Lib/
 site-packages/
 
-# Large datasets / outputs
-data\processed\
+# Large datasets / outputs (training-only, not needed at runtime)
+data/processed/drugbank_interactions.csv
+data/processed/drugbank_interactions_filtered.csv
+data/processed/drugbank_external_ids.csv
+data/processed/twosides_features_filtered.csv
+data/processed/twosides_processed.csv
+data/processed/twosides_processed_filtered.csv
+data/processed/rxnorm_bridge.csv

@@ -1,0 +1,975 @@
+drugbank_id,drug_name,carrier_id,carrier_name,actions,organism,gene_name,uniprot_id
+DB00023,Asparaginase Escherichia coli,BE0000537,Thyroxine-binding globulin,inhibitor,Humans,SERPINA7,P05543
+DB00059,Pegaspargase,BE0000537,Thyroxine-binding globulin,inhibitor,Humans,SERPINA7,P05543
+DB00070,Hyaluronidase (ovine),BE0000530,Albumin,inhibitor,Humans,ALB,P02768
+DB00080,Daptomycin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00080,Daptomycin,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00080,Daptomycin,BE0000952,Alpha-1-antitrypsin,binder,Humans,SERPINA1,P01009
+DB00080,Daptomycin,BE0000499,Low-density lipoprotein receptor,binder,Humans,LDLR,P01130
+DB00080,Daptomycin,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00080,Daptomycin,BE0009909,Hemopexin,binder,Humans,HPX,P02790
+DB00083,Botulinum toxin type A,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00104,Octreotide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00107,Oxytocin,BE0000751,Oxytocin-neurophysin 1,binder,Humans,OXT,P01178
+DB00126,Ascorbic acid,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00132,alpha-Linolenic acid,BE0001821,"Fatty acid-binding protein, brain",,Humans,FABP7,O15540
+DB00136,Calcitriol,BE0001141,Vitamin D-binding protein,binder,Humans,GC,P02774
+DB00137,Lutein,BE0000530,Albumin,,Humans,ALB,P02768
+DB00152,Thiamine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00153,Ergocalciferol,BE0001141,Vitamin D-binding protein,binder,Humans,GC,P02774
+DB00154,Daleuton,BE0001821,"Fatty acid-binding protein, brain",,Humans,FABP7,O15540
+DB00159,Icosapent,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00162,Vitamin A,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00162,Vitamin A,BE0000786,Retinaldehyde-binding protein 1,binder,Humans,RLBP1,P12271
+DB00162,Vitamin A,BE0000255,Retinol-binding protein 3,binder,Humans,RBP3,P10745
+DB00162,Vitamin A,BE0000301,Retinol-binding protein 1,binder,Humans,RBP1,P09455
+DB00162,Vitamin A,BE0000682,Retinol-binding protein 5,binder,Humans,RBP5,P82980
+DB00162,Vitamin A,BE0000532,Retinoid-binding protein 7,binder,Humans,RBP7,Q96R05
+DB00162,Vitamin A,BE0000314,Retinol-binding protein 4,binder,Humans,RBP4,P02753
+DB00162,Vitamin A,BE0000505,Retinol-binding protein 2,binder,Humans,RBP2,P50120
+DB00163,Vitamin E,BE0000256,SEC14-like protein 2,binder,Humans,SEC14L2,O76054
+DB00163,Vitamin E,BE0000339,SEC14-like protein 3,binder,Humans,SEC14L3,Q9UDX4
+DB00163,Vitamin E,BE0009656,Phospholipid transfer protein,binder,Humans,PLTP,P55058
+DB00163,Vitamin E,BE0000643,Alpha-tocopherol transfer protein,binder,Humans,TTPA,P49638
+DB00165,Pyridoxine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00169,Cholecalciferol,BE0001141,Vitamin D-binding protein,,Humans,GC,P02774
+DB00180,Flunisolide,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00200,Hydroxocobalamin,BE0000362,Transcobalamin-2,substrate,Humans,TCN2,P20062
+DB00214,Torasemide,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00220,Nelfinavir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00220,Nelfinavir,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00227,Lovastatin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00228,Enflurane,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00237,Butabarbital,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00238,Nevirapine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00240,Alclometasone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00243,Ranolazine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00245,Benzatropine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00246,Ziprasidone,BE0000530,Albumin,,Humans,ALB,P02768
+DB00246,Ziprasidone,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00252,Phenytoin,BE0000530,Albumin,,Humans,ALB,P02768
+DB00252,Phenytoin,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB00253,Medrysone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00254,Doxycycline,BE0000530,Albumin,"substrate, binder",Humans,ALB,P02768
+DB00255,Diethylstilbestrol,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB00264,Metoprolol,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00266,Dicoumarol,BE0000530,Albumin,,Humans,ALB,P02768
+DB00273,Topiramate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00274,Cefmetazole,BE0000530,Albumin,,Humans,ALB,P02768
+DB00278,Argatroban,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00278,Argatroban,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00279,Liothyronine,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB00279,Liothyronine,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB00279,Liothyronine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00280,Disopyramide,BE0000925,Alpha-1-acid glycoprotein 1,other/unknown,Humans,ORM1,P02763
+DB00286,Conjugated estrogens,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB00286,Conjugated estrogens,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00286,Conjugated estrogens,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00289,Atomoxetine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00289,Atomoxetine,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00289,Atomoxetine,BE0000710,High affinity immunoglobulin gamma Fc receptor I,binder,Humans,FCGR1A,P12314
+DB00292,Etomidate,BE0001057,"Solute carrier family 2, facilitated glucose transporter member 1",inhibitor,Humans,SLC2A1,P11166
+DB00294,Etonogestrel,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00294,Etonogestrel,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00295,Morphine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00296,Ropivacaine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00303,Ertapenem,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00304,Desogestrel,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00304,Desogestrel,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00310,Chlorthalidone,BE0000530,Albumin,,Humans,ALB,P02768
+DB00313,Valproic acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB00316,Acetaminophen,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00317,Gefitinib,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00317,Gefitinib,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB00321,Amitriptyline,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00321,Amitriptyline,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00322,Floxuridine,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB00324,Fluorometholone,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB00327,Hydromorphone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00328,Indomethacin,BE0000530,Albumin,,Humans,ALB,P02768
+DB00332,Ipratropium,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00332,Ipratropium,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00333,Methadone,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00333,Methadone,BE0000530,Albumin,,Humans,ALB,P02768
+DB00334,Olanzapine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00334,Olanzapine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00335,Atenolol,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00342,Terfenadine,BE0004879,alpha1-acid glycoprotein,"binder, regulator",Humans,ORM1,P02763
+DB00342,Terfenadine,BE0000530,Albumin,"binder, regulator",Humans,ALB,P02768
+DB00343,Diltiazem,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00343,Diltiazem,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00346,Alfuzosin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00346,Alfuzosin,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00349,Clobazam,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00349,Clobazam,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00363,Clozapine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00363,Clozapine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00366,Doxylamine,BE0000530,Albumin,regulator,Humans,ALB,P02768
+DB00376,Trihexyphenidyl,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00391,Sulpiride,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00394,Beclomethasone dipropionate,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00404,Alprazolam,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00404,Alprazolam,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00409,Remoxipride,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00412,Rosiglitazone,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00414,Acetohexamide,BE0000530,Albumin,,Humans,ALB,P02768
+DB00415,Ampicillin,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB00421,Spironolactone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00421,Spironolactone,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00427,Triprolidine,BE0000530,Albumin,"binder, regulator",Humans,ALB,P02768
+DB00430,Cefpiramide,BE0000530,Albumin,,Humans,ALB,P02768
+DB00432,Trifluridine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00434,Cyproheptadine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00438,Ceftazidime,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00443,Betamethasone,BE0000530,Albumin,,Humans,ALB,P02768
+DB00443,Betamethasone,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB00451,Levothyroxine,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB00451,Levothyroxine,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB00451,Levothyroxine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00454,Meperidine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00454,Meperidine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00456,Cefalotin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00457,Prazosin,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB00458,Imipramine,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00458,Imipramine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00459,Acitretin,BE0000530,Albumin,,Humans,ALB,P02768
+DB00460,Verteporfin,BE0010065,Apolipoproteins,binder,Humans,APOA1,P02647
+DB00461,Nabumetone,BE0000530,Albumin,,Humans,ALB,P02768
+DB00472,Fluoxetine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00472,Fluoxetine,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB00476,Duloxetine,BE0000530,Albumin,ligand,Humans,ALB,P02768
+DB00476,Duloxetine,BE0004879,alpha1-acid glycoprotein,ligand,Humans,ORM1,P02763
+DB00477,Chlorpromazine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00481,Raloxifene,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00481,Raloxifene,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00485,Dicloxacillin,BE0000530,Albumin,"binder, regulator",Humans,ALB,P02768
+DB00490,Buspirone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00490,Buspirone,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00495,Zidovudine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00497,Oxycodone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00497,Oxycodone,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00500,Tolmetin,BE0000530,Albumin,,Humans,ALB,P02768
+DB00501,Cimetidine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00503,Ritonavir,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00503,Ritonavir,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB00512,Vancomycin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00512,Vancomycin,BE0004879,alpha1-acid glycoprotein,substrate,Humans,ORM1,P02763
+DB00512,Vancomycin,BE0009144,Histamine H1 receptor,substrate,Mouse,Hrh1,P70174
+DB00515,Cisplatin,BE0000530,Albumin,,Humans,ALB,P02768
+DB00523,Alitretinoin,BE0000782,Cellular retinoic acid-binding protein 2,agonist,Humans,CRABP2,P29373
+DB00523,Alitretinoin,BE0000508,Cellular retinoic acid-binding protein 1,agonist,Humans,CRABP1,P29762
+DB00526,Oxaliplatin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00530,Erlotinib,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00530,Erlotinib,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB00532,Mephenytoin,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB00537,Ciprofloxacin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00540,Nortriptyline,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00540,Nortriptyline,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00543,Amoxapine,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00544,Fluorouracil,BE0000530,Albumin,,Humans,ALB,P02768
+DB00544,Fluorouracil,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB00554,Piroxicam,BE0000530,Albumin,,Humans,ALB,P02768
+DB00555,Lamotrigine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00557,Hydroxyzine,BE0000530,Albumin,"substrate, regulator",Humans,ALB,P02768
+DB00563,Methotrexate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00567,Cephalexin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00568,Cinnarizine,BE0000530,Albumin,regulator,Humans,ALB,P02768
+DB00571,Propranolol,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00571,Propranolol,BE0000530,Albumin,,Humans,ALB,P02768
+DB00572,Atropine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00573,Fenoprofen,BE0000530,Albumin,,Humans,ALB,P02768
+DB00575,Clonidine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00576,Sulfamethizole,BE0000530,Albumin,,Humans,ALB,P02768
+DB00584,Enalapril,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00586,Diclofenac,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB00586,Diclofenac,BE0000530,Albumin,,Humans,ALB,P02768
+DB00588,Fluticasone propionate,BE0001004,Solute carrier organic anion transporter family member 1B1,inhibitor,Humans,SLCO1B1,Q9Y6L6
+DB00588,Fluticasone propionate,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB00591,Fluocinolone acetonide,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00595,Oxytetracycline,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00596,Ulobetasol,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00598,Labetalol,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00598,Labetalol,BE0004879,alpha1-acid glycoprotein,substrate,Humans,ORM1,P02763
+DB00601,Linezolid,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00603,Medroxyprogesterone acetate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00605,Sulindac,BE0000530,Albumin,,Humans,ALB,P02768
+DB00607,Nafcillin,BE0000530,Albumin,,Humans,ALB,P02768
+DB00608,Chloroquine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00608,Chloroquine,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00619,Imatinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00619,Imatinib,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00620,Triamcinolone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00620,Triamcinolone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00624,Testosterone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00624,Testosterone,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00625,Efavirenz,BE0000530,Albumin,,Humans,ALB,P02768
+DB00627,Niacin,BE0000537,Thyroxine-binding globulin,inhibitor,Humans,SERPINA7,P05543
+DB00635,Prednisone,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00635,Prednisone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00636,Clofibrate,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB00640,Adenosine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00642,Pemetrexed,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00648,Mitotane,BE0000537,Thyroxine-binding globulin,upregulator,Humans,SERPINA7,P05543
+DB00648,Mitotane,BE0000685,Sex hormone-binding globulin,upregulator,Humans,SHBG,P04278
+DB00648,Mitotane,BE0000209,Corticosteroid-binding globulin,upregulator,Humans,SERPINA6,P08185
+DB00649,Stavudine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00655,Estrone,BE0000530,Albumin,,Humans,ALB,P02768
+DB00661,Verapamil,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00661,Verapamil,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB00663,Flumethasone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00675,Tamoxifen,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00675,Tamoxifen,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB00677,Isoflurophate,BE0000530,Albumin,,Humans,ALB,P02768
+DB00678,Losartan,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00682,Warfarin,BE0000530,Albumin,"binder, regulator",Humans,ALB,P02768
+DB00682,Warfarin,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00683,Midazolam,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00683,Midazolam,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00687,Fludrocortisone,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00687,Fludrocortisone,BE0000209,Corticosteroid-binding globulin,substrate,Humans,SERPINA6,P08185
+DB00695,Furosemide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00695,Furosemide,BE0000537,Thyroxine-binding globulin,binder,Humans,SERPINA7,P05543
+DB00706,Tamsulosin,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00709,Lamivudine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00712,Flurbiprofen,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB00714,Apomorphine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00717,Norethisterone,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00717,Norethisterone,BE0000685,Sex hormone-binding globulin,substrate,Humans,SHBG,P04278
+DB00731,Nateglinide,BE0000530,Albumin,,Humans,ALB,P02768
+DB00731,Nateglinide,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00734,Risperidone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00734,Risperidone,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00737,Meclizine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00741,Hydrocortisone,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00741,Hydrocortisone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00743,Gadobenic acid,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00744,Zileuton,BE0000530,Albumin,,Humans,ALB,P02768
+DB00748,Carbinoxamine,BE0004879,alpha1-acid glycoprotein,"binder, regulator",Humans,ORM1,P02763
+DB00749,Etodolac,BE0000530,Albumin,,Humans,ALB,P02768
+DB00753,Isoflurane,BE0000530,Albumin,,Humans,ALB,P02768
+DB00754,Ethotoin,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB00755,Tretinoin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00758,Clopidogrel,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00759,Tetracycline,BE0000530,Albumin,,Humans,ALB,P02768
+DB00762,Irinotecan,BE0000530,Albumin,"substrate, binder",Humans,ALB,P02768
+DB00768,Olopatadine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00770,Alprostadil,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00774,Hydroflumethiazide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00776,Oxcarbazepine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00783,Estradiol,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00783,Estradiol,BE0000530,Albumin,,Humans,ALB,P02768
+DB00783,Estradiol,BE0003591,"Fatty acid-binding protein, intestinal",binder,Humans,FABP2,P12104
+DB00784,Mefenamic acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB00787,Acyclovir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00788,Naproxen,BE0000530,Albumin,,Humans,ALB,P02768
+DB00792,Tripelennamine,BE0000530,Albumin,"binder, regulator",Humans,ALB,P02768
+DB00795,Sulfasalazine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00802,Alfentanil,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00802,Alfentanil,BE0000530,Albumin,,Humans,ALB,P02768
+DB00808,Indapamide,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00808,Indapamide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00808,Indapamide,BE0010007,Erythrocyte,binder,,,
+DB00813,Fentanyl,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00813,Fentanyl,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00814,Meloxicam,BE0000530,Albumin,,Humans,ALB,P02768
+DB00815,Sodium lauryl sulfate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00818,Propofol,BE0000530,Albumin,,Humans,ALB,P02768
+DB00829,Diazepam,BE0000530,Albumin,,Humans,ALB,P02768
+DB00842,Oxazepam,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00845,Clofazimine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00846,Flurandrenolide,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00847,Cysteamine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00850,Perphenazine,BE0000530,Albumin,regulator,Humans,ALB,P02768
+DB00852,Pseudoephedrine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00853,Temozolomide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00853,Temozolomide,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00857,Terbinafine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00857,Terbinafine,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00858,Drostanolone,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB00860,Prednisolone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00860,Prednisolone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00861,Diflunisal,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB00861,Diflunisal,BE0000530,Albumin,,Humans,ALB,P02768
+DB00864,Tacrolimus,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00864,Tacrolimus,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB00870,Suprofen,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00877,Sirolimus,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00877,Sirolimus,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00877,Sirolimus,BE0010065,Apolipoproteins,binder,Humans,APOA1,P02647
+DB00878,Chlorhexidine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00879,Emtricitabine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00881,Quinapril,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00893,Iron Dextran,BE0000510,Serotransferrin,substrate,Humans,TF,P02787
+DB00896,Rimexolone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB00900,Didanosine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00903,Etacrynic acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB00907,Cocaine,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00908,Quinidine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00908,Quinidine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB00912,Repaglinide,BE0000530,Albumin,,Humans,ALB,P02768
+DB00924,Cyclobenzaprine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00926,Etretinate,BE0000508,Cellular retinoic acid-binding protein 1,,Humans,CRABP1,P29762
+DB00931,Metacycline,BE0000530,Albumin,,Humans,ALB,P02768
+DB00934,Maprotiline,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00936,Salicylic acid,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB00938,Salmeterol,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00938,Salmeterol,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00939,Meclofenamic acid,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB00943,Zalcitabine,BE0000530,Albumin,,Humans,ALB,P02768
+DB00946,Phenprocoumon,BE0000530,Albumin,"binder, regulator",Humans,ALB,P02768
+DB00946,Phenprocoumon,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB00950,Fexofenadine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00950,Fexofenadine,BE0004879,alpha1-acid glycoprotein,substrate,Humans,ORM1,P02763
+DB00951,Isoniazid,BE0000530,Albumin,,Humans,ALB,P02768
+DB00957,Norgestimate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00957,Norgestimate,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00959,Methylprednisolone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00960,Pindolol,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00968,Methyldopa,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00977,Ethinylestradiol,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00977,Ethinylestradiol,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB00982,Isotretinoin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00983,Formoterol,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB00986,Glycopyrronium,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00986,Glycopyrronium,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB00993,Azathioprine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB00995,Auranofin,BE0000530,Albumin,,Humans,ALB,P02768
+DB00997,Doxorubicin,BE0000530,Albumin,,Humans,ALB,P02768
+DB00999,Hydrochlorothiazide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01005,Hydroxyurea,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01006,Letrozole,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01009,Ketoprofen,BE0000530,Albumin,,Humans,ALB,P02768
+DB01013,Clobetasol propionate,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB01013,Clobetasol propionate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01015,Sulfamethoxazole,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01016,Glyburide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01024,Mycophenolic acid,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01026,Ketoconazole,BE0000530,Albumin,ligand,Humans,ALB,P02768
+DB01026,Ketoconazole,BE0000685,Sex hormone-binding globulin,ligand,Humans,SHBG,P04278
+DB01029,Irbesartan,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01029,Irbesartan,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01032,Probenecid,BE0000530,Albumin,,Humans,ALB,P02768
+DB01039,Fenofibrate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01042,Melphalan,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01042,Melphalan,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB01044,Gatifloxacin,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB01045,Rifampin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01045,Rifampin,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01047,Fluocinonide,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB01050,Ibuprofen,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01053,Benzylpenicillin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01056,Tocainide,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB01057,Echothiophate,BE0000530,Albumin,,Humans,ALB,P02768
+DB01058,Praziquantel,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01060,Amoxicillin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01062,Oxybutynin,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB01062,Oxybutynin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01064,Isoprenaline,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01067,Glipizide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01068,Clonazepam,BE0000530,Albumin,,Humans,ALB,P02768
+DB01069,Promethazine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01072,Atazanavir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01072,Atazanavir,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01076,Atorvastatin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01083,Orlistat,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01086,Benzocaine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01086,Benzocaine,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01088,Iloprost,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01093,Dimethyl sulfoxide,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB01098,Rosuvastatin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01101,Capecitabine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01104,Sertraline,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01110,Miconazole,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01115,Nifedipine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01115,Nifedipine,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01118,Amiodarone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01119,Diazoxide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01120,Gliclazide,BE0000530,Albumin,,Humans,ALB,P02768
+DB01124,Tolbutamide,BE0000530,Albumin,,Humans,ALB,P02768
+DB01126,Dutasteride,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01126,Dutasteride,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB01132,Pioglitazone,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01133,Tiludronic acid,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01136,Carvedilol,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01137,Levofloxacin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01138,Sulfinpyrazone,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB01142,Doxepin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01142,Doxepin,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB01147,Cloxacillin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01151,Desipramine,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB01156,Bupropion,BE0000925,Alpha-1-acid glycoprotein 1,antagonist,Humans,ORM1,P02763
+DB01159,Halothane,BE0000530,Albumin,,Humans,ALB,P02768
+DB01167,Itraconazole,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01169,Arsenic trioxide,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01173,Orphenadrine,BE0000530,Albumin,"binder, regulator",Humans,ALB,P02768
+DB01176,Cyclizine,BE0000530,Albumin,regulator,Humans,ALB,P02768
+DB01183,Naloxone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01185,Fluoxymesterone,BE0000685,Sex hormone-binding globulin,antagonist,Humans,SHBG,P04278
+DB01189,Desflurane,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01190,Clindamycin,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB01195,Flecainide,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01195,Flecainide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01197,Captopril,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB01203,Nadolol,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01212,Ceftriaxone,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB01219,Dantrolene,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB01222,Budesonide,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB01222,Budesonide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01232,Saquinavir,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB01232,Saquinavir,BE0000530,Albumin,,Humans,ALB,P02768
+DB01233,Metoclopramide,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB01234,Dexamethasone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01235,Levodopa,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01236,Sevoflurane,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01238,Aripiprazole,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01241,Gemfibrozil,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01242,Clomipramine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01264,Darunavir,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01264,Darunavir,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB01275,Hydralazine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01276,Exenatide,BE0000530,Albumin,,Humans,ALB,P02768
+DB01277,Mecasermin,BE0000970,Insulin-like growth factor-binding protein 3,carrier,Humans,IGFBP3,P17936
+DB01277,Mecasermin,BE0009058,Insulin-like growth factor-binding protein complex acid labile subunit,carrier,Humans,IGFALS,P35858
+DB01277,Mecasermin,BE0009658,Insulin-like growth factor-binding protein 1,carrier,Humans,IGFBP1,P08833
+DB01277,Mecasermin,BE0009659,Insulin-like growth factor-binding protein 2,carrier,Humans,IGFBP2,P18065
+DB01277,Mecasermin,BE0009660,Insulin-like growth factor-binding protein 4,carrier,Humans,IGFBP4,P22692
+DB01277,Mecasermin,BE0009661,Insulin-like growth factor-binding protein 5,carrier,Humans,IGFBP5,P24593
+DB01277,Mecasermin,BE0009662,Insulin-like growth factor-binding protein 6,carrier,Humans,IGFBP6,P24592
+DB01280,Nelarabine,BE0001204,Equilibrative nucleoside transporter 1,substrate,Humans,SLC29A1,Q99808
+DB01294,Bismuth subsalicylate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01294,Bismuth subsalicylate,BE0000510,Serotransferrin,,Humans,TF,P02787
+DB01307,Insulin detemir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01320,Fosphenytoin,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB01320,Fosphenytoin,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB01324,Polythiazide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01327,Cefazolin,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB01328,Cefonicid,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB01329,Cefoperazone,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB01330,Cefotetan,BE0000530,Albumin,,Humans,ALB,P02768
+DB01359,Penbutolol,BE0000925,Alpha-1-acid glycoprotein 1,other/unknown,Humans,ORM1,P02763
+DB01364,Ephedrine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01370,Aluminium,BE0000530,Albumin,,Humans,ALB,P02768
+DB01380,Cortisone acetate,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB01380,Cortisone acetate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01384,Paramethasone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB01394,Colchicine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01396,Digitoxin,BE0000530,Albumin,,Humans,ALB,P02768
+DB01397,Magnesium salicylate,BE0000530,Albumin,,Humans,ALB,P02768
+DB01406,Danazol,BE0000685,Sex hormone-binding globulin,antagonist,Humans,SHBG,P04278
+DB01410,Ciclesonide,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB01418,Acenocoumarol,BE0000530,Albumin,,Humans,ALB,P02768
+DB01418,Acenocoumarol,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB01420,Testosterone propionate,BE0000685,Sex hormone-binding globulin,substrate,Humans,SHBG,P04278
+DB01420,Testosterone propionate,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01426,Ajmaline,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB01429,Aprindine,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB01436,Alfacalcidol,BE0001141,Vitamin D-binding protein,substrate,Humans,GC,P02774
+DB01436,Alfacalcidol,BE0010059,Alpha globin,binder,Humans,,V9H1D9
+DB01452,Diamorphine,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB01581,Sulfamerazine,BE0000530,Albumin,,Humans,ALB,P02768
+DB01582,Sulfamethazine,BE0000530,Albumin,,Humans,ALB,P02768
+DB01583,Liotrix,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB01583,Liotrix,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB01583,Liotrix,BE0000530,Albumin,,Humans,ALB,P02768
+DB01587,Ketazolam,BE0000530,Albumin,,Humans,ALB,P02768
+DB01591,Solifenacin,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01601,Lopinavir,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB01601,Lopinavir,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB01611,Hydroxychloroquine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01611,Hydroxychloroquine,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB01614,Acepromazine,BE0000530,Albumin,,Humans,ALB,P02768
+DB01619,Phenindamine,BE0000530,Albumin,"binder, regulator",Humans,ALB,P02768
+DB01621,Pipotiazine,BE0000530,Albumin,,Humans,ALB,P02768
+DB01622,Thioproperazine,BE0000530,Albumin,,Humans,ALB,P02768
+DB01623,Thiothixene,BE0000530,Albumin,,Humans,ALB,P02768
+DB01627,Lincomycin,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB01629,5-fluorouridine,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB01645,Genistein,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB01685,Topiroxostat,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB01685,Topiroxostat,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB01751,Tetraiodothyroacetic acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB01838,"6,4'-Dihydroxy-3-Methyl-3',5'-Dibromoflavone",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB01914,D-glucose,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB02074,Butenoic Acid,BE0003998,"Fatty acid-binding protein, liver",,Humans,FABP1,P07148
+DB02080,"1-{2-[2-(2-Methoxyethoxy)Ethoxy]Ethoxy}-4-(1,1,3,3-Tetramethylbutyl)Benzene",BE0000643,Alpha-tocopherol transfer protein,,Humans,TTPA,P49638
+DB02153,3-sulfino-L-alanine,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB02179,O-Trifluoromethylphenyl Anthranilic Acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB02216,S-Methylcysteine,BE0003998,"Fatty acid-binding protein, liver",,Humans,FABP1,P07148
+DB02266,Flufenamic acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB02342,2-Methoxyestradiol,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB02417,"2,4,6-Tribromophenol",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB02659,Cholic Acid,BE0003998,"Fatty acid-binding protein, liver",,Humans,FABP1,P07148
+DB02698,"N-(M-Trifluoromethylphenyl) Phenoxazine-4,6-Dicarboxylic Acid",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB02709,Resveratrol,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB02709,Resveratrol,BE0000530,Albumin,,Humans,ALB,P02768
+DB02776,1-Hexadecanosulfonic Acid,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB02901,Stanolone,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB03009,2-{[2-Oxo-2-(1-piperidinyl)ethyl]sulfanyl}-6-(trifluoromethyl)-4(1H)-pyrimidinone,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB03017,Lauric acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB03167,Pentabromophenol,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB03193,Stearic acid,BE0001201,"Fatty acid-binding protein, heart",,Humans,FABP3,P05413
+DB03193,Stearic acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB03239,"3',5'-Dinitro-N-Acetyl-L-Thyronine",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB03346,"3,3',5,5'-tetrachlorobiphenyl-4,4'-diol",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB03585,Oxyphenbutazone,BE0000530,Albumin,,Humans,ALB,P02768
+DB03600,Capric acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB03682,"Dibenzofuran-4,6-Dicarboxylic Acid",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB03766,Propanoic acid,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB03796,Palmitic Acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB03796,Palmitic Acid,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB03796,Palmitic Acid,BE0001984,Fatty acid-binding protein 5,,Humans,FABP5,Q01469
+DB03796,Palmitic Acid,BE0001201,"Fatty acid-binding protein, heart",,Humans,FABP3,P05413
+DB03796,Palmitic Acid,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB03851,Carbazole Butanoic Acid,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB03882,"5-Alpha-Androstane-3-Beta,17beta-Diol",BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB03917,N-Ethylretinamide,BE0000314,Retinol-binding protein 4,,Humans,RBP4,P02753
+DB03926,"5alpha-androstane-3beta,17alpha-diol",BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB04216,Quercetin,BE0000530,Albumin,,Humans,ALB,P02768
+DB04224,Oleic Acid,BE0001201,"Fatty acid-binding protein, heart",,Humans,FABP3,P05413
+DB04224,Oleic Acid,BE0003998,"Fatty acid-binding protein, liver",,Humans,FABP1,P07148
+DB04224,Oleic Acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB04224,Oleic Acid,BE0001141,Vitamin D-binding protein,,Humans,GC,P02774
+DB04224,Oleic Acid,BE0001821,"Fatty acid-binding protein, brain",,Humans,FABP7,O15540
+DB04224,Oleic Acid,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB04437,"Cysteine-Methylene-Carbamoyl-1,10-Phenanthroline",BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB04474,8-anilinonaphthalene-1-sulfonic acid,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB04474,8-anilinonaphthalene-1-sulfonic acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB04539,Glyphosate,BE0000530,Albumin,,Humans,ALB,P02768
+DB04557,Arachidonic Acid,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB04557,Arachidonic Acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB04557,Arachidonic Acid,BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB04574,Estrone sulfate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB04574,Estrone sulfate,BE0000530,Albumin,,Humans,ALB,P02768
+DB04674,"2-HYDROXY-3,5-DIIODOBENZOIC ACID",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB04690,Camptothecin,BE0000530,Albumin,,Humans,ALB,P02768
+DB04711,Iodipamide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB04756,"2-[(3,5-Dichloro-4-trioxidanylphenyl)amino]benzoic acid",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB04816,Dantron,BE0000530,Albumin,,Humans,ALB,P02768
+DB04821,Nomifensine,BE0000925,Alpha-1-acid glycoprotein 1,,Humans,ORM1,P02763
+DB04828,Zomepirac,BE0000530,Albumin,,Humans,ALB,P02768
+DB04847,Roxadustat,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB04854,Febuxostat,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB04855,Dronedarone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB04861,Nebivolol,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB04911,Oritavancin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB04942,Tamibarotene,BE0000508,Cellular retinoic acid-binding protein 1,,Humans,CRABP1,P29762
+DB04951,Pirfenidone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB05076,Fenretinide,BE0000314,Retinol-binding protein 4,,Humans,RBP4,P02753
+DB05134,Tanespimycin,BE0000530,Albumin,,Humans,ALB,P02768
+DB05187,Elafibranor,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB05235,NRP409,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB05235,NRP409,BE0000537,Thyroxine-binding globulin,,Humans,SERPINA7,P05543
+DB05239,Cobimetinib,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB05260,Gallium nitrate,BE0000510,Serotransferrin,binder,Humans,TF,P02787
+DB05294,Vandetanib,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB05294,Vandetanib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB05352,Fx-1006A,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB05382,Iodine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB05382,Iodine,BE0009873,Thyroglobulin,binder,Humans,TG,P01266
+DB05521,Telaprevir,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB05521,Telaprevir,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB05688,CRx-119,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB05812,Abiraterone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB05812,Abiraterone,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB05948,MD-0727,BE0003449,Apolipoprotein A-I,,Humans,APOA1,P02647
+DB06119,Cenobamate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06150,Sulfadimethoxine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB06151,Acetylcysteine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06199,Atrasentan,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06201,Rufinamide,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB06209,Prasugrel,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB06215,Ferumoxytol,BE0000510,Serotransferrin,binder,Humans,TF,P02787
+DB06216,Asenapine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06216,Asenapine,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB06234,Maribavir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06234,Maribavir,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB06237,Avanafil,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06237,Avanafil,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB06282,Levocetirizine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06288,Amisulpride,BE0010007,Erythrocyte,binder,,,
+DB06290,Simeprevir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06412,Oxymetholone,BE0000530,Albumin,,Humans,ALB,P02768
+DB06412,Oxymetholone,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB06480,Prucalopride,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06636,Isavuconazonium,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06655,Liraglutide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06695,Dabigatran etexilate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06705,Gadofosveset trisodium,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB06710,Methyltestosterone,BE0000530,Albumin,,Humans,ALB,P02768
+DB06710,Methyltestosterone,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB06716,Fospropofol,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB06755,Beta carotene,BE0004020,Very low-density lipoprotein receptor,substrate,Humans,VLDLR,P98155
+DB06755,Beta carotene,BE0000301,Retinol-binding protein 1,substrate,Humans,RBP1,P09455
+DB06755,Beta carotene,BE0000505,Retinol-binding protein 2,substrate,Humans,RBP2,P50120
+DB06755,Beta carotene,BE0000255,Retinol-binding protein 3,substrate,Humans,RBP3,P10745
+DB06755,Beta carotene,BE0000314,Retinol-binding protein 4,substrate,Humans,RBP4,P02753
+DB06755,Beta carotene,BE0000682,Retinol-binding protein 5,substrate,Humans,RBP5,P82980
+DB06757,Manganese cation,BE0000510,Serotransferrin,binder,Humans,TF,P02787
+DB06757,Manganese cation,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06757,Manganese cation,BE0001140,Ceruloplasmin,binder,Humans,CP,P00450
+DB06772,Cabazitaxel,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06772,Cabazitaxel,BE0000499,Low-density lipoprotein receptor,binder,Humans,LDLR,P01130
+DB06772,Cabazitaxel,BE0004020,Very low-density lipoprotein receptor,binder,Humans,VLDLR,P98155
+DB06772,Cabazitaxel,BE0010226,Glycosylphosphatidylinositol-anchored high density lipoprotein-binding protein 1,binder,Humans,GPIHBP1,Q8IV16
+DB06784,Gallium citrate Ga-67,BE0000510,Serotransferrin,binder,Humans,TF,P02787
+DB06784,Gallium citrate Ga-67,BE0000994,Lactotransferrin,binder,Humans,LTF,P02788
+DB06784,Gallium citrate Ga-67,BE0000085,Ferritin light chain,binder,Humans,FTL,P02792
+DB06784,Gallium citrate Ga-67,BE0000399,Ferritin heavy chain,binder,Humans,FTH1,P02794
+DB06796,Mangafodipir,BE0000910,Alpha-2-macroglobulin,binder,Humans,A2M,P01023
+DB06796,Mangafodipir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06813,Pralatrexate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB06885,3-[({(1E)-[2-(trifluoromethyl)phenyl]methylidene}amino)oxy]propanoic acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB06907,"2-(2,6-DICHLOROPHENYL)-1,3-BENZOXAZOLE-6-CARBOXYLIC ACID",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB06935,"2',6'-DIFLUOROBIPHENYL-4-CARBOXYLIC ACID",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB06985,2-[({4-[2-(trifluoromethyl)phenyl]piperidin-1-yl}carbonyl)amino]benzoic acid,BE0000314,Retinol-binding protein 4,,Humans,RBP4,P02753
+DB07047,"2',4'-DICHLORO-4-HYDROXY-1,1'-BIPHENYL-3-CARBOXYLIC ACID",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07176,1-Naphthylamine-5-sulfonic acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07201,(2S)-3-[(9H-fluoren-9-ylideneamino)oxy]-2-methylpropanoic acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07240,3-[(9H-fluoren-9-ylideneamino)oxy]propanoic acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07282,3-({[(1Z)-(2-methoxyphenyl)methylidene]amino}oxy)propanoic acid,BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07283,"9-benzyl-2,3,4,9-tetrahydro-1H-carbazole-8-carboxylic acid",BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB07402,Azapropazone,BE0000530,Albumin,,Humans,ALB,P02768
+DB07517,3-CARBOXY-4-METHYL-5-PROPYL-2-FURANPROPIONIC,BE0000530,Albumin,,Humans,ALB,P02768
+DB07565,Chloramphenicol succinate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB07693,"N-(3,5-dibromo-4-hydroxyphenyl)-2,6-dimethylbenzamide",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07694,"2,5-dichloro-N-(3,5-dibromo-4-hydroxyphenyl)benzamide",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07695,"N-(3,5-dibromo-4-hydroxyphenyl)-4-hydroxy-3,5-dimethylbenzamide",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07753,"3',5'-DIFLUOROBIPHENYL-4-CARBOXYLIC ACID",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07775,"3',5'-DIBROMO-2',4,4',6'-TETRAHYDROXY AURONE",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07945,"5-(3-carbamoylbenzyl)-5,6,7,8,9,10-hexahydrocyclohepta[b]indole-4-carboxylic acid",BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB07962,"METHYL N-[(2',4'-DIFLUORO-4-HYDROXY-5-IODOBIPHENYL-3-YL)CARBONYL]-BETA-ALANINATE",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07963,"N-[(2',4'-DIFLUORO-4-HYDROXY-5-IODOBIPHENYL-3-YL)CARBONYL]-BETA-ALANINE",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB07992,Indoxyl sulfate,BE0000530,Albumin,,Humans,ALB,P02768
+DB08100,"2,6-dimethyl-4-[(E)-2-phenylethenyl]phenol",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB08101,"2,6-dibromo-4-[(E)-2-phenylethenyl]phenol",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB08102,"3,5-dibromobiphenyl-4-ol",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB08103,"2,6-dibromo-4-phenoxyphenol",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB08104,"N-(3,5-dibromo-4-hydroxyphenyl)benzamide",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB08127,"1,3,3-trimethyl-2-[(1E,3E)-3-methylpenta-1,3-dien-1-yl]cyclohexene",BE0000782,Cellular retinoic acid-binding protein 2,,Humans,CRABP2,P29373
+DB08205,"4-(1,3-BENZOXAZOL-2-YL)-2,6-DIMETHYLPHENOL",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB08206,"4-(1,3-BENZOXAZOL-2-YL)-2,6-DIBROMOPHENOL",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB08207,"2-(3,5-DIMETHYLPHENYL)-1,3-BENZOXAZOLE",BE0000337,Transthyretin,,Humans,TTR,P02766
+DB08231,Myristic acid,BE0000530,Albumin,,Humans,ALB,P02768
+DB08231,Myristic acid,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB08231,Myristic acid,BE0004245,Apolipoprotein M,,Humans,APOM,O95445
+DB08455,Ro 12-7310,BE0000782,Cellular retinoic acid-binding protein 2,,Humans,CRABP2,P29373
+DB08467,"6-(2,3,4,5,6,7-HEXAHYDRO-2,4,4-TRIMETHYL-1-METYLENEINDEN-2-YL)-3-METHYLHEXA-2,4-DIENOIC ACID",BE0000782,Cellular retinoic acid-binding protein 2,,Humans,CRABP2,P29373
+DB08496,(R)-warfarin,BE0000530,Albumin,,Humans,ALB,P02768
+DB08607,"(5R)-5-(4-{[(2R)-6-HYDROXY-2,5,7,8-TETRAMETHYL-3,4-DIHYDRO-2H-CHROMEN-2-YL]METHOXY}BENZYL)-1,3-THIAZOLIDINE-2,4-DIONE",BE0001194,"Fatty acid-binding protein, adipocyte",,Humans,FABP4,P15090
+DB08735,"R,S-Warfarin alcohol",BE0000530,Albumin,,Humans,ALB,P02768
+DB08736,"S,R-Warfarin alcohol",BE0000530,Albumin,,Humans,ALB,P02768
+DB08804,Nandrolone decanoate,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB08814,Triflusal,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB08816,Ticagrelor,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08820,Ivacaftor,BE0000530,Albumin,carrier,Humans,ALB,P02768
+DB08820,Ivacaftor,BE0000925,Alpha-1-acid glycoprotein 1,carrier,Humans,ORM1,P02763
+DB08822,Azilsartan medoxomil,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08828,Vismodegib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08828,Vismodegib,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB08860,Pitavastatin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB08860,Pitavastatin,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB08864,Rilpivirine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08865,Crizotinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08865,Crizotinib,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB08867,Ulipristal,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB08867,Ulipristal,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB08877,Ruxolitinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08881,Vemurafenib,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB08881,Vemurafenib,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB08893,Mirabegron,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08893,Mirabegron,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB08895,Tofacitinib,BE0000530,Albumin,,Humans,ALB,P02768
+DB08899,Enzalutamide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08903,Bedaquiline,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08903,Bedaquiline,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB08906,Fluticasone furoate,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB08906,Fluticasone furoate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08906,Fluticasone furoate,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB08907,Canagliflozin,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB08912,Dabrafenib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08930,Dolutegravir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08930,Dolutegravir,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB08931,Riociguat,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB08931,Riociguat,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB08932,Macitentan,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB08932,Macitentan,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB08936,Chlorcyclizine,BE0000530,Albumin,regulator,Humans,ALB,P02768
+DB08984,Etofenamate,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB08995,Diosmin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09053,Ibrutinib,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB09053,Ibrutinib,BE0004879,alpha1-acid glycoprotein,substrate,Humans,ORM1,P02763
+DB09069,Trimetazidine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09070,Tibolone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09073,Palbociclib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09074,Olaparib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09074,Olaparib,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB09076,Umeclidinium,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09076,Umeclidinium,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB09079,Nintedanib,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB09087,Potassium alum,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09093,Chlortetracycline,BE0000530,Albumin,,Humans,ALB,P02768
+DB09100,"Thyroid, porcine",BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09100,"Thyroid, porcine",BE0000337,Transthyretin,binder,Humans,TTR,P02766
+DB09100,"Thyroid, porcine",BE0000537,Thyroxine-binding globulin,binder,Humans,SERPINA7,P05543
+DB09124,Medrogestone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09124,Medrogestone,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB09124,Medrogestone,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB09128,Brexpiprazole,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB09128,Brexpiprazole,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB09130,Copper,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09130,Copper,BE0000910,Alpha-2-macroglobulin,binder,Humans,A2M,P01023
+DB09130,Copper,BE0001140,Ceruloplasmin,binder,Humans,CP,P00450
+DB09130,Copper,BE0002833,Copper transport protein ATOX1,binder,Humans,ATOX1,O00244
+DB09130,Copper,BE0005815,Copper chaperone for superoxide dismutase,binder,Humans,CCS,O14618
+DB09130,Copper,BE0008686,Cytochrome c oxidase copper chaperone,binder,Humans,COX17,Q14061
+DB09130,Copper,BE0008687,Hephaestin,binder,Humans,HEPH,Q9BQS7
+DB09130,Copper,BE0000041,Coagulation factor V,binder,Humans,F5,P12259
+DB09130,Copper,BE0000016,Coagulation factor VIII,binder,Humans,F8,P00451
+DB09130,Copper,BE0008688,Metallothionein,binder,Humans,MTF1,Q14872
+DB09139,Technetium Tc-99m oxidronate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09140,Oxygen,BE0000629,Hemoglobin subunit beta,binder,Humans,HBB,P68871
+DB09140,Oxygen,BE0000130,Hemoglobin subunit alpha,binder,Humans,HBA1,P69905
+DB09160,Technetium Tc-99m tetrofosmin,BE0001032,ATP-dependent translocase ABCB1,binder,Humans,ABCB1,P08183
+DB09195,Lorpiprazole,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB09204,Arotinolol,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB09204,Arotinolol,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB09213,Dexibuprofen,BE0000530,Albumin,,Humans,ALB,P02768
+DB09223,Blonanserin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB09229,Aranidipine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09229,Aranidipine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB09236,Lacidipine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09236,Lacidipine,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB09237,Levamlodipine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09241,Methylene blue,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09256,Tegafur,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB09262,Imidafenacin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB09262,Imidafenacin,BE0004879,alpha1-acid glycoprotein,substrate,Humans,ORM1,P02763
+DB09270,Ubidecarenone,BE0000499,Low-density lipoprotein receptor,substrate,Humans,LDLR,P01130
+DB09270,Ubidecarenone,BE0004020,Very low-density lipoprotein receptor,substrate,Humans,VLDLR,P98155
+DB09274,Artesunate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09280,Lumacaftor,BE0000530,Albumin,carrier,Humans,ALB,P02768
+DB09299,Tenofovir alafenamide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09317,"Synthetic Conjugated Estrogens, A",BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB09318,"Synthetic Conjugated Estrogens, B",BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB09329,"Antihemophilic factor (recombinant), PEGylated",BE0001043,von Willebrand factor,,Humans,VWF,P04275
+DB09333,Iopodic acid,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB09347,Acetrizoic acid,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09348,Propiolactone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09381,Esterified estrogens,BE0000537,Thyroxine-binding globulin,inducer,Humans,SERPINA7,P05543
+DB09383,Meprednisone,BE0000530,Albumin,,Humans,ALB,P02768
+DB09418,Potassium perchlorate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09526,Hydroquinone,BE0000530,Albumin,,Humans,ALB,P02768
+DB09555,Dexchlorpheniramine maleate,BE0003648,Solute carrier family 22 member 1,"substrate, inhibitor",Humans,SLC22A1,O15245
+DB09555,Dexchlorpheniramine maleate,BE0003647,Solute carrier family 22 member 2,inhibitor,Humans,SLC22A2,O15244
+DB09564,Insulin degludec,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB09568,Omega-3-carboxylic acids,BE0000935,Phosphatidylcholine transfer protein,binder,Humans,PCTP,Q9UKL6
+DB09568,Omega-3-carboxylic acids,BE0001179,Phosphatidylethanolamine-binding protein 1,binder,Humans,PEBP1,P30086
+DB11093,Calcium citrate,BE0008690,Calbindin,substrate,Humans,CALB1,P05937
+DB11093,Calcium citrate,BE0004083,Protein S100-G,substrate,Humans,S100G,P29377
+DB11093,Calcium citrate,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11100,Allantoin,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB11130,Opium,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11130,Opium,BE0003777,Beta-2-microglobulin,binder,Humans,B2M,P61769
+DB11134,Cupric oxide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11134,Cupric oxide,BE0001140,Ceruloplasmin,binder,Humans,CP,P00450
+DB11136,Chromium,BE0000510,Serotransferrin,binder,Humans,TF,P02787
+DB11148,Butamben,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB11148,Butamben,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11182,Rose bengal,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11182,Rose bengal,BE0000994,Lactotransferrin,binder,Humans,LTF,P02788
+DB11182,Rose bengal,BE0000510,Serotransferrin,binder,Humans,TF,P02787
+DB11217,Arbutin,BE0000530,Albumin,,Humans,ALB,P02768
+DB11221,Dioxybenzone,BE0009358,Alpha-fetoprotein,binder,Rat,Afp,P02773
+DB11251,Tocopherol,BE0004020,Very low-density lipoprotein receptor,binder,Humans,VLDLR,P98155
+DB11251,Tocopherol,BE0000499,Low-density lipoprotein receptor,binder,Humans,LDLR,P01130
+DB11348,Calcium Phosphate,BE0008690,Calbindin,substrate,Humans,CALB1,P05937
+DB11348,Calcium Phosphate,BE0004083,Protein S100-G,substrate,Humans,S100G,P29377
+DB11348,Calcium Phosphate,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11397,Dichlorvos,BE0000530,Albumin,,Humans,ALB,P02768
+DB11575,Grazoprevir,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11575,Grazoprevir,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB11590,Thimerosal,BE0000530,Albumin,,Humans,ALB,P02768
+DB11637,Delamanid,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11637,Delamanid,BE0000925,Alpha-1-acid glycoprotein 1,substrate,Humans,ORM1,P02763
+DB11641,Vinflunine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11641,Vinflunine,BE0004879,alpha1-acid glycoprotein,substrate,Humans,ORM1,P02763
+DB11642,Pitolisant,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11642,Pitolisant,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB11677,Triheptanoin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11689,Selumetinib,BE0000530,Albumin,carrier,Humans,ALB,P02768
+DB11689,Selumetinib,BE0004879,alpha1-acid glycoprotein,carrier,Humans,ORM1,P02763
+DB11703,Acalabrutinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11703,Acalabrutinib,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB11718,Encorafenib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11739,Vonoprazan,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11739,Vonoprazan,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB11751,Cabotegravir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11753,Rifamycin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11757,Istradefylline,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11757,Istradefylline,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB11793,Niraparib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11796,Fostemsavir,BE0000530,Albumin,carrier,Humans,ALB,P02768
+DB11800,Tivozanib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11820,Nifurtimox,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11827,Ertugliflozin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11828,Neratinib,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11828,Neratinib,BE0004879,alpha1-acid glycoprotein,substrate,Humans,ORM1,P02763
+DB11853,Relugolix,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11853,Relugolix,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB11855,Revefenacin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11886,Infigratinib,BE0010065,Apolipoproteins,binder,Humans,APOA1,P02647
+DB11901,Apalutamide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11943,Delafloxacin,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB11963,Dacomitinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11967,Binimetinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11978,Glasdegib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB11978,Glasdegib,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB12001,Abemaciclib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12001,Abemaciclib,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB12005,Nirogacestat,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12005,Nirogacestat,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB12095,Telotristat ethyl,BE0001067,Broad substrate specificity ATP-binding cassette transporter ABCG2,binder,Humans,ABCG2,Q9UNQ0
+DB12141,Gilteritinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12147,Erdafitinib,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB12235,Estetrol,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12235,Estetrol,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB12243,Edaravone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12255,Vadadustat,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12404,Remimazolam,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12425,Liothyronine I-131,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB12455,Omadacycline,BE0000530,Albumin,,Humans,ALB,P02768
+DB12466,Favipiravir,BE0000530,Albumin,carrier,Humans,ALB,P02768
+DB12466,Favipiravir,BE0004879,alpha1-acid glycoprotein,carrier,Humans,ORM1,P02763
+DB12471,Ibrexafungerp,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12483,Copanlisib,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB12674,Lurbinectedin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12674,Lurbinectedin,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB12836,Grapiprant,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB12874,Quizartinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12941,Darolutamide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12978,Pexidartinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB12978,Pexidartinib,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB13014,Hypericin,BE0000530,Albumin,,Humans,ALB,P02768
+DB13310,Ormeloxifene,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB13396,Neocitrullamon,BE0000537,Thyroxine-binding globulin,substrate,Humans,SERPINA7,P05543
+DB13421,Edoxudine,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB13514,Pranoprofen,BE0000530,Albumin,regulator,Humans,ALB,P02768
+DB13751,Glycyrrhizic acid,BE0000438,Aldo-keto reductase family 1 member C4,substrate,Humans,AKR1C4,P17516
+DB13751,Glycyrrhizic acid,BE0000592,Aldo-keto reductase family 1 member C3,substrate,Humans,AKR1C3,P42330
+DB13751,Glycyrrhizic acid,BE0000622,Aldo-keto reductase family 1 member C2,substrate,Humans,AKR1C2,P52895
+DB13751,Glycyrrhizic acid,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB13867,Fluticasone,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB13867,Fluticasone,BE0001032,ATP-dependent translocase ABCB1,substrate,Humans,ABCB1,P08183
+DB13867,Fluticasone,BE0001004,Solute carrier organic anion transporter family member 1B1,inhibitor,Humans,SLCO1B1,Q9Y6L6
+DB13874,Enasidenib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB13909,Bismuth subgallate,BE0000530,Albumin,carrier,Humans,ALB,P02768
+DB13928,Semaglutide,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB13943,Testosterone cypionate,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB13943,Testosterone cypionate,BE0000685,Sex hormone-binding globulin,other/unknown,Humans,SHBG,P04278
+DB13944,Testosterone enanthate,BE0000530,Albumin,other/unknown,Humans,ALB,P02768
+DB13944,Testosterone enanthate,BE0000685,Sex hormone-binding globulin,other/unknown,Humans,SHBG,P04278
+DB13946,Testosterone undecanoate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB13946,Testosterone undecanoate,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB13949,Ferric cation,BE0000510,Serotransferrin,binder,Humans,TF,P02787
+DB13949,Ferric cation,BE0001155,Integrin beta-3,binder,Humans,ITGB3,P05106
+DB13949,Ferric cation,BE0002109,Calreticulin,binder,Humans,CALR,P27797
+DB13951,Stanolone acetate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB13952,Estradiol acetate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB13952,Estradiol acetate,BE0000530,Albumin,,Humans,ALB,P02768
+DB13952,Estradiol acetate,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB13953,Estradiol benzoate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB13953,Estradiol benzoate,BE0000530,Albumin,,Humans,ALB,P02768
+DB13953,Estradiol benzoate,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB13954,Estradiol cypionate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB13954,Estradiol cypionate,BE0000530,Albumin,,Humans,ALB,P02768
+DB13954,Estradiol cypionate,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB13955,Estradiol dienanthate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB13955,Estradiol dienanthate,BE0000530,Albumin,,Humans,ALB,P02768
+DB13955,Estradiol dienanthate,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB13956,Estradiol valerate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB13956,Estradiol valerate,BE0000530,Albumin,,Humans,ALB,P02768
+DB13956,Estradiol valerate,BE0003591,"Fatty acid-binding protein, intestinal",,Humans,FABP2,P12104
+DB13959,Medium-chain triglycerides,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14001,alpha-Tocopherol succinate,BE0000643,Alpha-tocopherol transfer protein,,Humans,TTPA,P49638
+DB14002,D-alpha-Tocopherol acetate,BE0000643,Alpha-tocopherol transfer protein,,Humans,TTPA,P49638
+DB14003,alpha-Tocopherol acetate,BE0004020,Very low-density lipoprotein receptor,binder,Humans,VLDLR,P98155
+DB14003,alpha-Tocopherol acetate,BE0000499,Low-density lipoprotein receptor,binder,Humans,LDLR,P01130
+DB14007,Pentetic acid,BE0000952,Alpha-1-antitrypsin,substrate,Humans,SERPINA1,P01009
+DB14126,Tenofovir,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14185,Aripiprazole lauroxil,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14481,Calcium phosphate dihydrate,BE0008690,Calbindin,,Humans,CALB1,P05937
+DB14481,Calcium phosphate dihydrate,BE0004083,Protein S100-G,,Humans,S100G,P29377
+DB14481,Calcium phosphate dihydrate,BE0000530,Albumin,,Humans,ALB,P02768
+DB14513,Magnesium,BE0000530,Albumin,,Humans,ALB,P02768
+DB14517,Aluminium phosphate,BE0000530,Albumin,,Humans,ALB,P02768
+DB14518,Aluminum acetate,BE0000530,Albumin,,Humans,ALB,P02768
+DB14520,Tetraferric tricitrate decahydrate,BE0000510,Serotransferrin,binder,Humans,TF,P02787
+DB14520,Tetraferric tricitrate decahydrate,BE0001155,Integrin beta-3,binder,Humans,ITGB3,P05106
+DB14520,Tetraferric tricitrate decahydrate,BE0002109,Calreticulin,binder,Humans,CALR,P27797
+DB14526,Chromic citrate,BE0000510,Serotransferrin,,Humans,TF,P02787
+DB14527,Chromic nitrate,BE0000510,Serotransferrin,,Humans,TF,P02787
+DB14528,Chromium gluconate,BE0000510,Serotransferrin,,Humans,TF,P02787
+DB14529,Chromium nicotinate,BE0000510,Serotransferrin,,Humans,TF,P02787
+DB14530,Chromous sulfate,BE0000510,Serotransferrin,,Humans,TF,P02787
+DB14533,Zinc chloride,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14538,Hydrocortisone aceponate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB14538,Hydrocortisone aceponate,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB14539,Hydrocortisone acetate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB14539,Hydrocortisone acetate,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB14540,Hydrocortisone butyrate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB14540,Hydrocortisone butyrate,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB14541,Hydrocortisone cypionate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB14541,Hydrocortisone cypionate,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB14542,Hydrocortisone phosphate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB14542,Hydrocortisone phosphate,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB14543,Hydrocortisone probutate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB14543,Hydrocortisone probutate,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB14544,Hydrocortisone valerate,BE0000685,Sex hormone-binding globulin,,Humans,SHBG,P04278
+DB14544,Hydrocortisone valerate,BE0000209,Corticosteroid-binding globulin,,Humans,SERPINA6,P08185
+DB14548,"Zinc sulfate, unspecified form",BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14582,Patisiran,BE0000530,Albumin,ligand,Humans,ALB,P02768
+DB14582,Patisiran,BE0004879,alpha1-acid glycoprotein,ligand,Humans,ORM1,P02763
+DB14631,Prednisolone phosphate,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB14631,Prednisolone phosphate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14649,Dexamethasone acetate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14669,Betamethasone phosphate,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB14669,Betamethasone phosphate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14840,Ripretinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14840,Ripretinib,BE0004879,alpha1-acid glycoprotein,binder,Humans,ORM1,P02763
+DB14860,Ensartinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14879,Cefiderocol,BE0000530,Albumin,ligand,Humans,ALB,P02768
+DB14973,Abrocitinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB14999,Human interferon beta,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15059,Aprocitentan,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15093,Somapacitan,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15133,Tepotinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15133,Tepotinib,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB15141,Deutivacaftor,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15141,Deutivacaftor,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB15149,Futibatinib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15149,Futibatinib,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB15171,Tirzepatide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15248,Bulevirtide,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15305,Risdiplam,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15444,Elexacaftor,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB15456,Vericiguat,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15534,Colchiceine,BE0000530,Albumin,substrate,Humans,ALB,P02768
+DB15566,Prednisolone acetate,BE0000209,Corticosteroid-binding globulin,binder,Humans,SERPINA6,P08185
+DB15566,Prednisolone acetate,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15575,Padeliporfin,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15690,Fluoroestradiol F-18,BE0000685,Sex hormone-binding globulin,binder,Humans,SHBG,P04278
+DB15690,Fluoroestradiol F-18,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB15935,Lumasiran,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB16165,Finerenone,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB16200,Iptacopan,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB16200,Iptacopan,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB16693,Insulin icodec,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB16699,Vutrisiran,BE0000530,Albumin,ligand,Humans,ALB,P02768
+DB16703,Belumosudil,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB16703,Belumosudil,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB17083,Linzagolix,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB17171,Ziftomenib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB18373,Vanzacaftor,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB18373,Vanzacaftor,BE0000925,Alpha-1-acid glycoprotein 1,binder,Humans,ORM1,P02763
+DB18515,Revumenib,BE0000530,Albumin,binder,Humans,ALB,P02768
+DB18997,Plozasiran,BE0010188,Asialoglycoprotein receptor 1,binder,Humans,ASGR1,P07306
