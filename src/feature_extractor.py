@@ -102,7 +102,8 @@ class FeatureExtractor:
 
         # Known interactions
         self.known_interactions = pd.read_csv(
-            os.path.join(data_dir, 'drugbank_interactions_enriched.csv')
+            os.path.join(data_dir, 'drugbank_interactions_enriched.csv.gz'),
+            compression='gzip'
         )
         self.known_pairs = set(zip(
             self.known_interactions['drug_1_id'].astype(str),

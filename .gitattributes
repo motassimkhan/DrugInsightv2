@@ -1,5 +1,0 @@
-data/processed/drugbank_drugs.csv filter=lfs diff=lfs merge=lfs -text
-data/processed/drugbank_pathways.csv filter=lfs diff=lfs merge=lfs -text
-data/processed/drugbank_interactions_enriched.csv filter=lfs diff=lfs merge=lfs -text
-data/processed/drugbank_targets.csv filter=lfs diff=lfs merge=lfs -text
-data/processed/drugbank_smiles_filtered.csv filter=lfs diff=lfs merge=lfs -text

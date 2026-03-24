@@ -36,3 +36,4 @@ data/processed/twosides_features_filtered.csv
 data/processed/twosides_processed.csv
 data/processed/twosides_processed_filtered.csv
 data/processed/rxnorm_bridge.csv
+data/processed/drugbank_interactions_enriched.csv
