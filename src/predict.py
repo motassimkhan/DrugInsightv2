@@ -14,8 +14,9 @@ from explainer         import Explainer
 RDLogger.DisableLog('rdApp.*')
 
 DEVICE     = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-MODEL_PATH = 'models/ddi_model.pt'
-DATA_DIR   = 'data/processed'
+_ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+MODEL_PATH = os.path.join(_ROOT, 'models', 'ddi_model.pt')
+DATA_DIR   = os.path.join(_ROOT, 'data', 'processed')
 
 
 class DDIPredictor:
