@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import json
+import sys
+import os
 
-from drug_insight import predictor
 
 st.set_page_config(
     page_title="DrugInsight",
