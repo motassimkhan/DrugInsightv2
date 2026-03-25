@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 
 # ── Load ───────────────────────────────────────────────────────────────────────
-print("Loading files...")
-interactions   = pd.read_csv('data/processed/drugbank_interactions_filtered.csv')
+print("# Load input files")
+interactions   = pd.read_csv('data/processed/drugbank_interactions_filtered.csv.gz')
+drugs          = pd.read_csv('data/processed/drugbank_drugs.csv')
 enzymes        = pd.read_csv('data/processed/drugbank_enzymes.csv')
 targets        = pd.read_csv('data/processed/drugbank_targets.csv')
 transporters   = pd.read_csv('data/processed/drugbank_transporters.csv')
@@ -96,15 +97,16 @@ interactions = interactions.drop_duplicates(subset=['pair_id'], keep='first')
 print(f"  Removed {initial_len - len(interactions)} duplicate pairs.")
 
 # ── Cleanup & save ─────────────────────────────────────────────────────────────
-interactions = interactions.drop(columns=['rx_1', 'rx_2', 'pair_id'])
+enriched = interactions.drop(columns=['rx_1', 'rx_2', 'pair_id'])
 
 print("\nFinal feature stats:")
-print(interactions[['shared_enzyme_count', 'shared_target_count',
+print(enriched[['shared_enzyme_count', 'shared_target_count',
                      'shared_transporter_count', 'shared_carrier_count',
                      'shared_pathway_count',
                      'max_PRR', 'twosides_found']].describe())
 
-out_path = 'data/processed/drugbank_interactions_enriched.csv'
-interactions.to_csv(out_path, index=False)
+# --- 3. Save resulting dataset ---
+out_path = 'data/processed/drugbank_interactions_enriched.csv.gz'
+enriched.to_csv(out_path, index=False)
 print(f"\nSaved to {out_path}")
-print(f"Shape: {interactions.shape}")
+print(f"Shape: {enriched.shape}")

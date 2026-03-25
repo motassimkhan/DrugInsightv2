@@ -5,7 +5,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from predict import DDIPredictor
+from predict import DDIPredictor, resolve_model_path
 
 st.set_page_config(
     page_title="DrugInsight",
@@ -348,7 +348,7 @@ hr { border-color: var(--border) !important; margin: 1.5rem 0 !important; }
 
 @st.cache_resource(show_spinner=False)
 def load_predictor():
-    return DDIPredictor()
+    return DDIPredictor(model_path=resolve_model_path())
 
 
 

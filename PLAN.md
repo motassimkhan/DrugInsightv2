@@ -78,7 +78,7 @@ The graph pipeline will be built in 4 modular phases. For all phases, keep tripl
 
 ---
 
-## 🧠 Downstream Classifier Integration (Final Stage)
+## 🧠 Downstream Classifier Integration (Final Stage)   
 
 Once `phase4_master_triples.tsv` embeddings are trained via PyKEEN RotatE:
 1. Export the Entity Embedding matrices.

@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-03-25T02:28:07.299673+00:00",
+  "row_counts": {
+    "drug_catalog.csv": 19830,
+    "drugbank_smiles_filtered.csv": 14606,
+    "twosides_mapped.csv": 4700,
+    "drugbank_interactions_enriched.csv": 1455276
+  },
+  "feature_metadata": {
+    "created_at": "2026-03-25T02:28:07.298638+00:00",
+    "feature_order": [
+      "shared_enzyme_count",
+      "shared_target_count",
+      "shared_transporter_count",
+      "shared_carrier_count",
+      "shared_pathway_count",
+      "shared_major_cyp_count",
+      "cyp3a4_shared",
+      "cyp2d6_shared",
+      "cyp2c9_shared",
+      "twosides_max_prr",
+      "twosides_num_signals",
+      "twosides_found"
+    ],
+    "extra_dim": 12,
+    "feature_caps": {
+      "shared_enzyme_count": 5,
+      "shared_target_count": 2,
+      "shared_transporter_count": 2,
+      "shared_carrier_count": 1,
+      "shared_pathway_count": 1,
+      "shared_major_cyp_count": 3,
+      "cyp3a4_shared": 1,
+      "cyp2d6_shared": 1,
+      "cyp2c9_shared": 1,
+      "twosides_max_prr": 245.05,
+      "twosides_num_signals": 1882,
+      "twosides_found": 1
+    },
+    "major_cyps": [
+      "CYP3A4",
+      "CYP2D6",
+      "CYP2C9"
+    ]
+  },
+  "twosides_mapping_stats": {
+    "exact_name_matches": 1941182,
+    "synonym_matches": 0,
+    "rxcui_matches": 93776,
+    "manual_alias_matches": 6377,
+    "unresolved": 52167,
+    "ambiguous": 3648,
+    "dropped": 54965
+  },
+  "source_paths": {
+    "twosides": "C:\\Users\\Ayman\\Documents\\DrugInsightv2\\TWOSIDES.csv",
+    "drugbank_drugs": "C:\\Users\\Ayman\\Documents\\DrugInsightv2\\data\\processed\\drugbank_drugs.csv",
+    "drugbank_interactions": "C:\\Users\\Ayman\\Documents\\DrugInsightv2\\data\\processed\\drugbank_interactions.csv"
+  }
+}

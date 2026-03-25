@@ -37,3 +37,8 @@ data/processed/twosides_processed.csv
 data/processed/twosides_processed_filtered.csv
 data/processed/rxnorm_bridge.csv
 data/processed/drugbank_interactions_enriched.csv
+
+TWOSIDES.csv
+full_database.xml
+
+PREPROCESSING_CHANGELOG.md
