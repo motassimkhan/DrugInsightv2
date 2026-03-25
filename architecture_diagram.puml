@@ -1,0 +1,58 @@
+@startuml DrugInsight_Architecture
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Inter
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam roundCorner 10
+skinparam ArrowThickness 2
+skinparam ArrowColor #495057
+
+skinparam rectangle {
+    BorderColor #868E96
+    FontSize 13
+}
+
+title <size:18><b>DrugInsight — System Architecture</b></size>
+
+' ── Input ──
+rectangle "<b>Drug A</b>" as DrugA #E3F2FD
+rectangle "<b>Drug B</b>" as DrugB #E3F2FD
+
+' ── Core Pipeline ──
+rectangle "<b>Drug Resolution</b>\n& Feature Extraction" as Resolve #FFE0B2
+rectangle "<b>Molecular Graph\nConstruction</b>\n(RDKit + PyG)" as Graph #C8E6C9
+rectangle "<b>AttentiveFP\nGNN Encoder</b>\n(256-dim embeddings)" as GNN #D1C4E9
+rectangle "<b>MLP Classifier</b>\n(518 → 128 → 1)" as MLP #F8BBD0
+rectangle "<b>Adaptive Evidence\nFusion Layer</b>" as Fusion #FFD600
+rectangle "<b>Rule-Based\nExplainer</b>" as Explain #C5CAE9
+
+' ── Outputs ──
+rectangle "<b>Risk Index</b>\n<b>Severity</b>\n<b>Explanation</b>" as Output #A5D6A7
+
+' ── Data Sources ──
+database "<b>DrugBank</b>" as DB #B3E5FC
+database "<b>TWOSIDES</b>" as TWO #B3E5FC
+
+' ── Deployment ──
+rectangle "<b>Streamlit UI</b> | <b>FastAPI</b> | <b>CLI</b>" as Deploy #E0E0E0
+
+' ══ Flow ══
+DrugA -down-> Resolve
+DrugB -down-> Resolve
+Resolve -down-> Graph : SMILES
+Graph -down-> GNN
+GNN -down-> MLP : Embeddings +\nPair Features
+MLP -down-> Fusion : ML probability
+Fusion -down-> Output
+Output -down-> Deploy
+Fusion -right-> Explain
+Explain -down-> Output
+
+' ══ Data Source Connections ══
+DB -right-> Resolve : Drug data,\nEnzymes, Targets
+DB -right-> Fusion : Rule score
+TWO -right-> Fusion : PRR signal
+TWO -right-> Resolve : Pharmacovigilance\n(via RxNorm)
+
+@enduml
