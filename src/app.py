@@ -7,15 +7,6 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from predict import DDIPredictor, resolve_model_path
 
-# ── Ensure SQLite database exists (handles ephemeral Streamlit Cloud restarts) ──
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-DB_PATH = os.path.join(ROOT_DIR, 'data', 'processed', 'druginsight.db')
-if not os.path.exists(DB_PATH):
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from build_sqlite_db import build_database
-    with st.spinner("Setting up database, please wait..."):
-        build_database()
-
 st.set_page_config(
     page_title="DrugInsight",
     page_icon="⬡",
