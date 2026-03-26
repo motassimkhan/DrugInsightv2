@@ -38,7 +38,11 @@ data/processed/twosides_processed_filtered.csv
 data/processed/rxnorm_bridge.csv
 data/processed/drugbank_interactions_enriched.csv
 
+# Auto-generated SQLite database (regenerated at startup)
+data/processed/druginsight.db
+
 TWOSIDES.csv
 full_database.xml
 
 PREPROCESSING_CHANGELOG.md
+.agent/

@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import sqlite3
 from functools import lru_cache
 
 import numpy as np
@@ -89,6 +90,7 @@ class FeatureExtractor:
             os.path.join(self.data_dir, 'feature_metadata.json')
         )
 
+        # ── Small objects: kept in memory (~45 MB combined) ──────────────────
         self.drug_catalog = pd.read_csv(os.path.join(self.data_dir, 'drug_catalog.csv'))
         self.id_to_name = dict(zip(self.drug_catalog['drugbank_id'], self.drug_catalog['name']))
 
@@ -122,42 +124,12 @@ class FeatureExtractor:
         self.drug_carriers = self._load_id_sets('drugbank_carriers.csv', 'carrier_id')
         self.drug_pathways = self._load_pathways()
 
-        interactions_path = os.path.join(self.data_dir, 'drugbank_interactions_enriched.csv.gz')
-        usecols = [
-            'pair_key',
-            'drug_1_id',
-            'drug_2_id',
-            'drug_1_name',
-            'drug_2_name',
-            'direct_drugbank_hit',
-            'mechanism_primary',
-            'twosides_found',
-            'twosides_max_prr',
-            'twosides_mean_prr',
-            'twosides_num_signals',
-            'twosides_total_coreports',
-            'twosides_mean_report_freq',
-            'twosides_top_condition',
-        ]
-        self.known_interactions = pd.read_csv(interactions_path, usecols=usecols, low_memory=False)
-        self.known_by_key = {}
-        for row in self.known_interactions.itertuples(index=False):
-            if int(getattr(row, 'direct_drugbank_hit', 0) or 0) != 1:
-                continue
-            row_dict = row._asdict()
-            row_dict['mechanism'] = row_dict.get('mechanism_primary', '')
-            self.known_by_key[row.pair_key] = row_dict
+        # ── Large objects: served from SQLite (saves ~1.5 GB peak RAM) ──────
+        self.db_path = os.path.join(self.data_dir, 'druginsight.db')
+        self._ensure_database()
+        self._db_conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        self._db_conn.row_factory = sqlite3.Row
 
-        twosides_path = os.path.join(self.data_dir, 'twosides_mapped.csv')
-        self.twosides_pairs = pd.read_csv(twosides_path)
-        self.twosides_by_key = {
-            row.pair_key: row._asdict()
-            for row in self.twosides_pairs.itertuples(index=False)
-        }
-
-        self.known_pair_keys = set(self.known_by_key)
-        self.twosides_pair_keys = set(self.twosides_by_key)
-        self.excluded_negative_pair_keys = self.known_pair_keys | self.twosides_pair_keys
 
     def _load_enzymes(self):
         enzymes_df = pd.read_csv(os.path.join(self.data_dir, 'drugbank_enzymes.csv'))
@@ -233,11 +205,45 @@ class FeatureExtractor:
 
         raise ValueError(f"Drug '{drug_input}' not found in DrugBank database.")
 
+    def _ensure_database(self):
+        """Build the SQLite database from CSVs if it does not exist yet."""
+        if os.path.exists(self.db_path):
+            return
+        from build_sqlite_db import build_database
+        build_database()
+
+    def _query_db(self, table, pair_key):
+        """Run an indexed SELECT on pair_key. Returns a dict or None."""
+        cursor = self._db_conn.execute(
+            f'SELECT * FROM {table} WHERE pair_key = ?', (pair_key,)
+        )
+        row = cursor.fetchone()
+        if row is None:
+            return None
+        return dict(row)
+
     def get_known_interaction(self, id_a, id_b):
-        return self.known_by_key.get(canonical_pair_key(id_a, id_b))
+        pair_key = canonical_pair_key(id_a, id_b)
+        row = self._query_db('known_interactions', pair_key)
+        if row is None:
+            return None
+        if int(row.get('direct_drugbank_hit', 0) or 0) != 1:
+            return None
+        row['mechanism'] = row.get('mechanism_primary', '')
+        return row
 
     def get_twosides_signal(self, id_a, id_b):
-        return self.twosides_by_key.get(canonical_pair_key(id_a, id_b))
+        pair_key = canonical_pair_key(id_a, id_b)
+        return self._query_db('twosides_pairs', pair_key)
+
+    def _is_excluded_pair(self, pair_key):
+        """Check if a pair_key exists in either known_interactions or twosides_pairs."""
+        cursor = self._db_conn.execute(
+            'SELECT 1 FROM known_interactions WHERE pair_key = ? '
+            'UNION SELECT 1 FROM twosides_pairs WHERE pair_key = ? LIMIT 1',
+            (pair_key, pair_key)
+        )
+        return cursor.fetchone() is not None
 
     def get_shared_enzymes(self, id_a, id_b):
         enzymes_a = {row['enzyme_id']: dict(row) for row in self.drug_enzymes.get(id_a, [])}
@@ -341,7 +347,7 @@ class FeatureExtractor:
                 continue
             seen.add(pair_key)
 
-            if pair_key in positive_pair_keys or pair_key in self.excluded_negative_pair_keys:
+            if pair_key in positive_pair_keys or self._is_excluded_pair(pair_key):
                 continue
 
             features = self.pair_features(drug_a, drug_b)
