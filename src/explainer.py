@@ -1,6 +1,6 @@
 
-SEVERITY_LABELS = {0: 'Minor', 1: 'Moderate', 2: 'Major'}
-SEVERITY_COLORS = {0: 'green', 1: 'orange', 2: 'red'}
+SEVERITY_LABELS = {-1: 'Uncertain', 0: 'Minor', 1: 'Moderate', 2: 'Major'}
+SEVERITY_COLORS = {-1: 'gray', 0: 'green', 1: 'orange', 2: 'red'}
 
 
 class Explainer:
@@ -238,24 +238,41 @@ class Explainer:
             mechanism_text = db_mechanism
         else:
             mechanism_parts = [p for p in [enzyme_text, target_text, pvg_text] if p]
-            mechanism_text  = ' '.join(mechanism_parts) if mechanism_parts else (
-                "The interaction mechanism is not fully characterised from available structural "
-                "and pharmacological data, but molecular analysis suggests a potential interaction."
-            )
-
+            if mechanism_parts:
+                mechanism_text  = ' '.join(mechanism_parts)
+            else:
+                # Priority 3: Drug Catalog textual fallback
+                a_info = context.get('drug_a_info', {})
+                b_info = context.get('drug_b_info', {})
+                a_pd = a_info.get('pharmacodynamics', '')
+                b_pd = b_info.get('pharmacodynamics', '')
+                
+                catalog_notes = []
+                if a_pd: catalog_notes.append(f"{name_a} pharmacodynamics: {a_pd}")
+                if b_pd: catalog_notes.append(f"{name_b} pharmacodynamics: {b_pd}")
+                
+                if catalog_notes:
+                    mechanism_text = "The specific mechanism of interaction is unknown. " + " ".join(catalog_notes)
+                else:
+                    mechanism_text = "The interaction mechanism is not fully characterised from available structural and pharmacological data, but molecular analysis suggests a potential interaction."
+                    
         # Fix 2 — append severity-linked clinical consequence
         consequence = {
             'Major':    "This combination may cause serious or life-threatening adverse effects.",
             'Moderate': "This combination may cause clinically significant adverse effects requiring monitoring.",
             'Minor':    "This combination may cause minor adverse effects unlikely to require intervention.",
+            'Uncertain': "Insufficient data — monitor patient closely (severity is uncertain due to lack of structural and clinical data).",
         }
         if sev_label in consequence:
             mechanism_text += f" {consequence[sev_label]}"
 
-        summary = (
-            f"A {sev_label.lower()} interaction is predicted between {name_a} and {name_b} "
-            f"(confidence: {prob*100:.1f}%)."
-        )
+        if sev_label == 'Uncertain':
+            summary = f"An interaction is known to exist between {name_a} and {name_b}, but its severity is {sev_label.lower()} due to missing data."
+        else:
+            summary = (
+                f"A {sev_label.lower()} interaction is predicted between {name_a} and {name_b} "
+                f"(confidence: {prob*100:.1f}%)."
+            )
 
         full_text = f"{summary} {mechanism_text} {rec_text}"
 
