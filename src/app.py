@@ -5,7 +5,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from predict import DDIPredictor
+from predict import DDIPredictor, resolve_model_path
 
 st.set_page_config(
     page_title="DrugInsight",
@@ -23,8 +23,8 @@ st.markdown("""
     --panel:   #0f1624;
     --border:  #1e2a3a;
     --border2: #253347;
-    --amber:   #f0a500;
-    --amber2:  #ffbe3c;
+    --amber:   #fe9ec7;
+    --amber2:  #ffb8d8;
     --red:     #e05c5c;
     --orange:  #e0883a;
     --green:   #3aad6e;
@@ -95,7 +95,7 @@ html, body, [class*="css"] {
 }
 .stTextInput input:focus {
     border-color: var(--amber) !important;
-    box-shadow: 0 0 0 2px rgba(240, 165, 0, 0.12) !important;
+    box-shadow: 0 0 0 2px rgba(254, 158, 199, 0.12) !important;
 }
 
 /* ── Button ── */
@@ -114,7 +114,7 @@ button[kind="primary"] {
 }
 button[kind="primary"]:hover {
     background: var(--amber2) !important;
-    box-shadow: 0 4px 16px rgba(240, 165, 0, 0.25) !important;
+    box-shadow: 0 4px 16px rgba(254, 158, 199, 0.25) !important;
 }
 
 /* ── Result header ── */
@@ -315,9 +315,9 @@ button[kind="primary"]:hover {
 .tag {
     font-family: var(--mono);
     font-size: 0.68rem;
-    background: rgba(240,165,0,0.1);
+    background: rgba(254,158,199,0.1);
     color: var(--amber);
-    border: 1px solid rgba(240,165,0,0.2);
+    border: 1px solid rgba(254,158,199,0.2);
     border-radius: 4px;
     padding: 0.2rem 0.5rem;
 }
@@ -348,7 +348,7 @@ hr { border-color: var(--border) !important; margin: 1.5rem 0 !important; }
 
 @st.cache_resource(show_spinner=False)
 def load_predictor():
-    return DDIPredictor()
+    return DDIPredictor(model_path=resolve_model_path())
 
 
 

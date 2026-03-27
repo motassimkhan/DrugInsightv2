@@ -1,321 +1,479 @@
-import torch
-import pandas as pd
-import json
 import argparse
+import json
 import os
-from rdkit import Chem, RDLogger
 
-from mol_graph         import smiles_to_graph
-from gnn_encoder       import GNNEncoder
-from ddi_classifier    import DDIClassifier
-from feature_extractor import FeatureExtractor
-from explainer         import Explainer
+import pandas as pd
+import torch
+from rdkit import RDLogger
+
+try:
+    from .ddi_classifier import DDIClassifier, load_feature_metadata
+    from .explainer import Explainer
+    from .feature_extractor import FeatureExtractor, build_normalized_feature_vector
+    from .gnn_encoder import GNNEncoder
+    from .mol_graph import smiles_to_graph
+except ImportError:
+    from ddi_classifier import DDIClassifier, load_feature_metadata
+    from explainer import Explainer
+    from feature_extractor import FeatureExtractor, build_normalized_feature_vector
+    from gnn_encoder import GNNEncoder
+    from mol_graph import smiles_to_graph
+
 
 RDLogger.DisableLog('rdApp.*')
 
-DEVICE     = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-_ROOT      = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-MODEL_PATH = os.path.join(_ROOT, 'models', 'ddi_model.pt')
-DATA_DIR   = os.path.join(_ROOT, 'data', 'processed')
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+DATA_DIR = os.path.join(ROOT_DIR, 'data', 'processed')
+FEATURE_METADATA_PATH = os.path.join(DATA_DIR, 'feature_metadata.json')
+DEFAULT_MODEL_FILENAMES = (
+    'ddi_model_reprocessed.pt',
+    'ddi_model.pt',
+)
+
+
+def resolve_model_path(model_path=None):
+    candidate_paths = []
+
+    if model_path:
+        candidate_paths.append(os.path.abspath(model_path))
+
+    env_model_path = os.getenv('DRUGINSIGHT_MODEL_PATH')
+    if env_model_path:
+        if os.path.isabs(env_model_path):
+            candidate_paths.append(env_model_path)
+        else:
+            candidate_paths.append(os.path.join(ROOT_DIR, env_model_path))
+
+    candidate_paths.extend(
+        os.path.join(ROOT_DIR, 'models', filename)
+        for filename in DEFAULT_MODEL_FILENAMES
+    )
+
+    seen = set()
+    for candidate in candidate_paths:
+        normalized = os.path.abspath(candidate)
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        if os.path.exists(normalized):
+            return normalized
+
+    return os.path.abspath(candidate_paths[0])
+
+
+MODEL_PATH = resolve_model_path()
 
 
 class DDIPredictor:
-    """
-    End-to-end DDI prediction pipeline.
-    Input:  two drug names or DrugBank IDs
-    Output: interaction prediction + severity + risk index + explanation + uncertainty
-    """
-
     def __init__(self, model_path=MODEL_PATH, data_dir=DATA_DIR):
-        print("Initialising DDI prediction pipeline...")
+        self.data_dir = data_dir
+        self.model_path = resolve_model_path(model_path)
+        self.feature_metadata = load_feature_metadata(os.path.join(data_dir, 'feature_metadata.json'))
 
-        smiles_df        = pd.read_csv(os.path.join(data_dir, 'drugbank_smiles_filtered.csv'))
-        self.smiles_dict = dict(zip(smiles_df['drugbank_id'], smiles_df['smiles']))
+        self.feature_extractor = FeatureExtractor(data_dir)
+        self.smiles_dict = self.feature_extractor.smiles_dict
+        self.explainer = Explainer()
 
-        self.gnn        = GNNEncoder().to(DEVICE)
-        self.classifier = DDIClassifier(extra_features=6).to(DEVICE)
+        self.gnn = GNNEncoder().to(DEVICE)
+        self.classifier = DDIClassifier(
+            feature_metadata_path=os.path.join(data_dir, 'feature_metadata.json')
+        ).to(DEVICE)
+        self._load_checkpoint(self.model_path)
+        self.gnn.eval()
+        self.classifier.eval()
+
+    def _adapt_classifier_state(self, source_state):
+        target_state = self.classifier.state_dict()
+        adapted_state = {}
+        adapted = False
+
+        for key, target_tensor in target_state.items():
+            source_tensor = source_state.get(key)
+            if source_tensor is None:
+                adapted_state[key] = target_tensor
+                adapted = True
+                continue
+
+            if source_tensor.shape == target_tensor.shape:
+                adapted_state[key] = source_tensor
+                continue
+
+            if (
+                source_tensor.ndim == 2 and
+                target_tensor.ndim == 2 and
+                source_tensor.shape[0] == target_tensor.shape[0]
+            ):
+                merged = target_tensor.clone()
+                merged.zero_()
+                width = min(source_tensor.shape[1], target_tensor.shape[1])
+                merged[:, :width] = source_tensor[:, :width]
+                adapted_state[key] = merged
+                adapted = True
+                continue
+
+            adapted_state[key] = target_tensor
+            adapted = True
+
+        return adapted_state, adapted
+
+    def _load_checkpoint(self, model_path):
+        if not os.path.exists(model_path):
+            print(f'Checkpoint not found at {model_path}. Using randomly initialized weights.')
+            return
 
         checkpoint = torch.load(model_path, map_location=DEVICE, weights_only=True)
         self.gnn.load_state_dict(checkpoint['gnn'])
-        self.classifier.load_state_dict(checkpoint['classifier'])
-        self.gnn.eval()
-        self.classifier.eval()
-        print(f"Model loaded from {model_path}")
 
-        self.feature_extractor = FeatureExtractor(data_dir)
-        self.explainer         = Explainer()
-        print("Pipeline ready.\n")
+        classifier_state = checkpoint.get('classifier', {})
+        try:
+            self.classifier.load_state_dict(classifier_state)
+        except RuntimeError:
+            adapted_state, adapted = self._adapt_classifier_state(classifier_state)
+            self.classifier.load_state_dict(adapted_state, strict=False)
+            if adapted:
+                print('Loaded classifier with input-layer adaptation for the new feature contract.')
 
-    # ── Fusion layer ──────────────────────────────────────────────────────────
-    def _compute_fusion(self, context, ml_prob):
-        """
-        Combines three independent evidence sources into a unified risk index.
+        print(f'Model loaded from {model_path}')
 
-        rule_score    — based on DrugBank structural evidence (enzymes, targets, known interaction)
-        twosides_score — based on pharmacovigilance signal (PRR)
-        ml_score      — raw GNN + MLP interaction probability
-
-        Returns fused probability, risk_index (0-100), severity label, and component scores.
-        """
-
-        # ── Rule score (DrugBank evidence) ─────────────────────────────────────
-        ki = context.get('known_interaction')
-        has_known = (
-            ki is not None and
-            ki.get('mechanism') is not None and
-            str(ki.get('mechanism', '')).strip() not in ('', 'nan', 'None')
-        )
-        has_enzymes   = context['shared_enzyme_count'] > 0
-        has_targets   = context['shared_target_count'] > 0
-        has_pathways  = len(context['shared_pathways']) > 0
-
-        if has_known:
-            rule_score = 1.0
-            drugbank_confidence = 'found'
-        elif has_enzymes or has_targets:
-            # Partial evidence — scale by number of shared features
-            n_shared = context['shared_enzyme_count'] + context['shared_target_count']
-            rule_score = min(0.5 + (n_shared * 0.05), 0.85)
-            drugbank_confidence = 'partial'
-        elif has_pathways:
-            rule_score = 0.3
-            drugbank_confidence = 'partial'
-        else:
-            rule_score = 0.0
-            drugbank_confidence = 'not_found'
-
-        # ── Twosides score (pharmacovigilance) ─────────────────────────────────
-        max_prr = float(context.get('max_PRR', 0.0) or 0.0)
-        if max_prr > 0:
-            # Normalise PRR to 0-1; PRR > 10 = strong signal, clip at 50
-            twosides_score = min(max_prr / 50.0, 1.0)
-            # Confounding check: if PRR is very high it may reflect solo drug toxicity
-            confounding_flag = max_prr > 100
-            twosides_confidence = 'high' if max_prr > 10 else 'moderate' if max_prr > 3 else 'weak'
-        else:
-            twosides_score      = 0.0
-            confounding_flag    = False
-            twosides_confidence = 'no_signal'
-
-        # ── ML score ───────────────────────────────────────────────────────────
-        ml_score = float(ml_prob)
-        # ML confidence based on distance from decision boundary (0.5)
-        margin = abs(ml_score - 0.5)
-        if margin > 0.35:
-            ml_confidence = 'high'
-        elif margin > 0.15:
-            ml_confidence = 'moderate'
-        else:
-            ml_confidence = 'low'
-
-        # ── Weighted fusion ────────────────────────────────────────────────────
-        # Weights reflect reliability: DrugBank curated > ML > pharmacovigilance
-        # If DrugBank has no evidence, ML carries more weight
-        if drugbank_confidence == 'found':
-            w_rule, w_ml, w_twosides = 0.60, 0.25, 0.15
-        elif drugbank_confidence == 'partial':
-            w_rule, w_ml, w_twosides = 0.40, 0.40, 0.20
-        else:
-            w_rule, w_ml, w_twosides = 0.10, 0.70, 0.20
-
-        fused_prob = (w_rule * rule_score +
-                      w_ml   * ml_score   +
-                      w_twosides * twosides_score)
-        fused_prob = round(min(max(fused_prob, 0.0), 1.0), 4)
-
-        # ── Risk index (0-100) ─────────────────────────────────────────────────
-        risk_index = int(round(fused_prob * 100))
-
-        # ── Severity from risk index ───────────────────────────────────────────
-        # Severity head is untrained (no severity labels yet), derive from fusion
-        if risk_index >= 70:
-            severity = 'Major'
-            severity_idx = 2
-        elif risk_index >= 40:
-            severity = 'Moderate'
-            severity_idx = 1
-        else:
-            severity = 'Minor'
-            severity_idx = 0
-
-        # ── Overall confidence ─────────────────────────────────────────────────
-        confidence_scores = {
-            'high': 3, 'moderate': 2, 'weak': 1,
-            'found': 3, 'partial': 2, 'not_found': 1,
-            'no_signal': 1, 'low': 1
-        }
-        avg_conf = (
-            confidence_scores.get(drugbank_confidence, 1) +
-            confidence_scores.get(ml_confidence, 1) +
-            confidence_scores.get(twosides_confidence, 1)
-        ) / 3.0
-
-        if avg_conf >= 2.5:
-            overall_confidence = 'high'
-        elif avg_conf >= 1.5:
-            overall_confidence = 'moderate'
-        else:
-            overall_confidence = 'low'
-
-        return {
-            'fused_prob':    fused_prob,
-            'risk_index':    risk_index,
-            'severity':      severity,
-            'severity_idx':  severity_idx,
-            'interaction':   fused_prob >= 0.5,
-            'components': {
-                'rule_score':      round(rule_score, 4),
-                'ml_score':        round(ml_score, 4),
-                'twosides_score':  round(twosides_score, 4),
-                'weights':         {'rule': w_rule, 'ml': w_ml, 'twosides': w_twosides},
-            },
-            'uncertainty': {
-                'drugbank_confidence':  drugbank_confidence,
-                'ml_confidence':        ml_confidence,
-                'twosides_confidence':  twosides_confidence,
-                'overall_confidence':   overall_confidence,
-                'confounding_flag':     confounding_flag,
-            }
-        }
-
-    # ── Graph helper ──────────────────────────────────────────────────────────
     def _get_graph(self, drugbank_id):
         smiles = self.smiles_dict.get(drugbank_id)
         if not smiles:
-            raise ValueError(f"No SMILES found for {drugbank_id}")
+            raise ValueError(f'No molecular structure available for {drugbank_id}')
         graph = smiles_to_graph(str(smiles).strip())
         if graph is None:
-            raise ValueError(f"Could not parse SMILES for {drugbank_id}")
+            raise ValueError(f'Could not parse SMILES for {drugbank_id}')
         return graph
 
-    # ── Main predict ──────────────────────────────────────────────────────────
-    def predict(self, drug_a, drug_b):
-        """
-        Full DDI prediction for two drugs.
-        Accepts drug names or DrugBank IDs.
-        Returns structured output dict or {'error': message}.
-        """
-
-        # Edge case: same drug
-        if str(drug_a).strip().lower() == str(drug_b).strip().lower():
-            return {'error': f"Both inputs refer to the same drug: '{drug_a}'"}
-
-        # ── 1. Resolve names → context ─────────────────────────────────────────
-        try:
-            context = self.feature_extractor.extract(drug_a, drug_b)
-        except ValueError as e:
-            return {'error': str(e)}
-
-        id_a   = context['drug_a']['id']
-        id_b   = context['drug_b']['id']
-        name_a = context['drug_a']['name']
-        name_b = context['drug_b']['name']
-
-        # Edge case: SMILES missing
-        if id_a not in self.smiles_dict:
-            return {'error': f"No molecular structure available for {name_a} ({id_a})"}
-        if id_b not in self.smiles_dict:
-            return {'error': f"No molecular structure available for {name_b} ({id_b})"}
-
-        # ── 2. Build graphs ────────────────────────────────────────────────────
-        try:
-            graph_a = self._get_graph(id_a)
-            graph_b = self._get_graph(id_b)
-        except ValueError as e:
-            return {'error': str(e)}
-
-        # ── 3. Extra features ──────────────────────────────────────────────────
-        extra = torch.tensor([[
-            min(float(context['shared_enzyme_count']), 21.0) / 21.0,
-            min(float(context['shared_target_count']), 36.0) / 36.0,
-            min(float(context.get('shared_transporter_count', 0)), 10.0) / 10.0,
-            min(float(context.get('shared_carrier_count', 0)), 10.0) / 10.0,
-            min(float(context.get('max_PRR', 0.0) or 0.0), 50.0) / 50.0,
-            float(context.get('twosides_found', 0) or 0),
-        ]], dtype=torch.float).to(DEVICE)
-
-        # ── 4. GNN + classifier ────────────────────────────────────────────────
+    def _run_model(self, context):
         from torch_geometric.data import Batch
-        try:
-            batch_a = Batch.from_data_list([graph_a]).to(DEVICE)
-            batch_b = Batch.from_data_list([graph_b]).to(DEVICE)
 
-            with torch.no_grad():
-                embed_a = self.gnn(batch_a)
-                embed_b = self.gnn(batch_b)
-                prob_logit, _ = self.classifier(embed_a, embed_b, extra)
-                ml_prob = torch.sigmoid(prob_logit).item()
+        graph_a = self._get_graph(context['drug_a']['id'])
+        graph_b = self._get_graph(context['drug_b']['id'])
+        extra = torch.tensor(
+            [build_normalized_feature_vector(context, self.feature_metadata)],
+            dtype=torch.float,
+        ).to(DEVICE)
 
-                # Catch degenerate outputs
-                if not (0.0 <= ml_prob <= 1.0):
-                    ml_prob = 0.5
-        except Exception as e:
-            return {'error': f"Model inference failed: {str(e)}"}
+        batch_a = Batch.from_data_list([graph_a]).to(DEVICE)
+        batch_b = Batch.from_data_list([graph_b]).to(DEVICE)
 
-        # ── 5. Fusion ──────────────────────────────────────────────────────────
-        fusion = self._compute_fusion(context, ml_prob)
+        with torch.no_grad():
+            embed_a = self.gnn(batch_a)
+            embed_b = self.gnn(batch_b)
+            prob_logit, _ = self.classifier(embed_a, embed_b, extra)
+            ml_prob = torch.sigmoid(prob_logit).item()
 
-        # ── 6. Explanation ─────────────────────────────────────────────────────
+        return min(max(float(ml_prob), 0.0), 1.0)
+
+    def _ml_confidence(self, ml_prob):
+        margin = abs(float(ml_prob) - 0.5)
+        if margin > 0.35:
+            return 'high'
+        if margin > 0.15:
+            return 'moderate'
+        return 'low'
+
+    def _twosides_score(self, context):
+        prr_cap = float(self.feature_metadata['feature_caps']['twosides_max_prr'])
+        signal_cap = float(self.feature_metadata['feature_caps']['twosides_num_signals'])
+        prr_component = min(float(context.get('twosides_max_prr', 0.0) or 0.0), prr_cap) / prr_cap
+        signal_component = min(float(context.get('twosides_num_signals', 0) or 0), signal_cap) / signal_cap
+        return round((0.7 * prr_component) + (0.3 * signal_component), 4)
+
+    def _twosides_confidence(self, context):
+        prr = float(context.get('twosides_max_prr', 0.0) or 0.0)
+        if prr > 10:
+            return 'high'
+        if prr > 3:
+            return 'moderate'
+        if prr > 0:
+            return 'weak'
+        return 'no_signal'
+
+    def _severity_from_risk(self, risk_index):
+        if risk_index >= 70:
+            return 'Major', 2
+        if risk_index >= 40:
+            return 'Moderate', 1
+        return 'Minor', 0
+
+    def _build_result(
+        self,
+        context,
+        probability,
+        interaction,
+        risk_index,
+        severity,
+        severity_idx,
+        decision_source,
+        severity_source,
+        component_scores,
+        uncertainty,
+    ):
         prediction_for_explainer = {
-            'interaction':  fusion['interaction'],
-            'probability':  fusion['fused_prob'],
-            'severity_idx': fusion['severity_idx'],
+            'interaction': interaction,
+            'probability': probability,
+            'severity_idx': severity_idx,
         }
         explanation = self.explainer.explain(context, prediction_for_explainer)
 
-        # ── 7. Final output ────────────────────────────────────────────────────
         return {
-            'drug_a':        name_a,
-            'drug_b':        name_b,
-            'drugbank_id_a': id_a,
-            'drugbank_id_b': id_b,
-            'interaction':   fusion['interaction'],
-            'probability':   fusion['fused_prob'],
-            'risk_index':    fusion['risk_index'],
-            'severity':      fusion['severity'],
-            'confidence':    f"{fusion['fused_prob']*100:.1f}%",
-            'summary':       explanation['summary'],
-            'mechanism':     explanation['mechanism'],
+            'drug_a': context['drug_a']['name'],
+            'drug_b': context['drug_b']['name'],
+            'drugbank_id_a': context['drug_a']['id'],
+            'drugbank_id_b': context['drug_b']['id'],
+            'interaction': interaction,
+            'probability': round(probability, 4),
+            'risk_index': int(risk_index),
+            'severity': severity,
+            'confidence': f'{probability * 100:.1f}%',
+            'evidence_tier': context['evidence_tier'],
+            'decision_source': decision_source,
+            'severity_source': severity_source,
+            'summary': explanation['summary'],
+            'mechanism': explanation['mechanism'],
             'recommendation': explanation['recommendation'],
             'evidence': {
                 'drugbank': {
-                    'shared_enzymes':  explanation['supporting_evidence']['shared_enzymes'],
-                    'shared_targets':  explanation['supporting_evidence']['shared_targets'],
+                    'shared_enzymes': explanation['supporting_evidence']['shared_enzymes'],
+                    'shared_targets': explanation['supporting_evidence']['shared_targets'],
                     'shared_pathways': context['shared_pathways'],
-                    'known_interaction': context['known_interaction'] is not None,
+                    'known_interaction': bool(context.get('direct_drugbank_hit')),
+                    'direct_drugbank_hit': bool(context.get('direct_drugbank_hit')),
                 },
                 'twosides': {
-                    'signal_found':     bool(context.get('twosides_found')),
-                    'max_PRR':          context.get('max_PRR', 0.0),
-                    'confounding_flag': fusion['uncertainty']['confounding_flag'],
+                    'signal_found': bool(context.get('twosides_found')),
+                    'max_PRR': float(context.get('twosides_max_prr', 0.0) or 0.0),
+                    'num_signals': int(context.get('twosides_num_signals', 0) or 0),
+                    'top_condition': context.get('twosides_top_condition', ''),
+                    'mapping_source': context.get('twosides_mapping_source', ''),
+                    'confounding_flag': uncertainty['confounding_flag'],
                 },
                 'ml': {
-                    'raw_probability': round(ml_prob, 4),
-                    'confidence':      fusion['uncertainty']['ml_confidence'],
+                    'raw_probability': round(component_scores['ml_score'], 4),
+                    'confidence': uncertainty['ml_confidence'],
                 },
             },
-            'component_scores': fusion['components'],
-            'uncertainty': fusion['uncertainty'],
+            'component_scores': component_scores,
+            'uncertainty': uncertainty,
+            'model_features': {
+                'names': context['model_feature_names'],
+                'values': context['model_feature_values'],
+                'vector': context['feature_vector'],
+            },
             'full_explanation': explanation['full_text'],
         }
-    def drug_names_with_smiles(self) -> list:
-        """Return only drug names that have valid SMILES — safe for prediction."""
-        return sorted(
-            name for db_id, name in self.feature_extractor.id_to_name.items()
-            if db_id in self.smiles_dict
+
+    def _direct_hit_result(self, context, ml_prob=None):
+        probability = 0.72
+        probability += 0.05 * min(int(context.get('shared_major_cyp_count', 0)), 2)
+        probability += 0.03 * min(int(context.get('shared_enzyme_count', 0)), 3)
+        probability += 0.02 * min(int(context.get('shared_target_count', 0)), 3)
+        probability += 0.01 * min(int(context.get('shared_pathway_count', 0)), 2)
+        probability += 0.02 if int(context.get('twosides_found', 0)) else 0.0
+        probability += 0.03 if float(context.get('twosides_max_prr', 0.0) or 0.0) > 10 else 0.0
+        probability = min(probability, 0.95)
+        risk_index = int(round(probability * 100))
+        severity, severity_idx = self._severity_from_risk(risk_index)
+
+        component_scores = {
+            'rule_score': 1.0,
+            'ml_score': round(float(ml_prob), 4) if ml_prob is not None else 0.0,
+            'twosides_score': self._twosides_score(context),
+            'weights': {'rule': 1.0, 'ml': 0.0, 'twosides': 0.0},
+        }
+        uncertainty = {
+            'drugbank_confidence': 'found',
+            'ml_confidence': self._ml_confidence(ml_prob) if ml_prob is not None else 'not_run',
+            'twosides_confidence': self._twosides_confidence(context),
+            'overall_confidence': 'high',
+            'confounding_flag': float(context.get('twosides_max_prr', 0.0) or 0.0) > 100,
+        }
+        return self._build_result(
+            context=context,
+            probability=probability,
+            interaction=True,
+            risk_index=risk_index,
+            severity=severity,
+            severity_idx=severity_idx,
+            decision_source='drugbank_direct',
+            severity_source='derived_rule_based_direct',
+            component_scores=component_scores,
+            uncertainty=uncertainty,
         )
 
-# ── CLI ───────────────────────────────────────────────────────────────────────
+    def _compute_fusion(self, context, ml_prob):
+        has_structural = any(
+            float(context.get(name, 0) or 0) > 0
+            for name in (
+                'shared_enzyme_count',
+                'shared_target_count',
+                'shared_transporter_count',
+                'shared_carrier_count',
+                'shared_pathway_count',
+                'shared_major_cyp_count',
+                'cyp3a4_shared',
+                'cyp2d6_shared',
+                'cyp2c9_shared',
+            )
+        )
+
+        rule_score = 0.0
+        if int(context.get('shared_enzyme_count', 0) or 0) > 0:
+            rule_score += min(0.32, 0.16 + (0.04 * int(context['shared_enzyme_count'])))
+        if int(context.get('shared_target_count', 0) or 0) > 0:
+            rule_score += min(0.22, 0.10 + (0.03 * int(context['shared_target_count'])))
+        if int(context.get('shared_transporter_count', 0) or 0) > 0:
+            rule_score += min(0.10, 0.04 + (0.02 * int(context['shared_transporter_count'])))
+        if int(context.get('shared_carrier_count', 0) or 0) > 0:
+            rule_score += min(0.08, 0.03 + (0.02 * int(context['shared_carrier_count'])))
+        if int(context.get('shared_pathway_count', 0) or 0) > 0:
+            rule_score += min(0.08, 0.02 + (0.01 * int(context['shared_pathway_count'])))
+        if int(context.get('shared_major_cyp_count', 0) or 0) > 0:
+            rule_score += min(0.18, 0.10 + (0.04 * int(context['shared_major_cyp_count'])))
+        rule_score = round(min(rule_score, 0.9), 4)
+
+        twosides_score = self._twosides_score(context)
+        if has_structural and int(context.get('twosides_found', 0) or 0):
+            weights = {'rule': 0.45, 'ml': 0.35, 'twosides': 0.20}
+        elif has_structural:
+            weights = {'rule': 0.55, 'ml': 0.45, 'twosides': 0.0}
+        else:
+            weights = {'rule': 0.0, 'ml': 0.70, 'twosides': 0.30}
+
+        fused_prob = (
+            (weights['rule'] * rule_score) +
+            (weights['ml'] * float(ml_prob)) +
+            (weights['twosides'] * twosides_score)
+        )
+        fused_prob = round(min(max(fused_prob, 0.0), 1.0), 4)
+        risk_index = int(round(fused_prob * 100))
+        severity, severity_idx = self._severity_from_risk(risk_index)
+
+        component_scores = {
+            'rule_score': rule_score,
+            'ml_score': round(float(ml_prob), 4),
+            'twosides_score': twosides_score,
+            'weights': weights,
+        }
+
+        confidence_scores = {
+            'found': 3,
+            'inferred': 2,
+            'not_found': 1,
+            'high': 3,
+            'moderate': 2,
+            'weak': 1,
+            'no_signal': 1,
+            'low': 1,
+        }
+        drugbank_confidence = 'inferred' if has_structural else 'not_found'
+        ml_confidence = self._ml_confidence(ml_prob)
+        twosides_confidence = self._twosides_confidence(context)
+        avg_confidence = (
+            confidence_scores[drugbank_confidence] +
+            confidence_scores[ml_confidence] +
+            confidence_scores[twosides_confidence]
+        ) / 3.0
+        overall_confidence = 'high' if avg_confidence >= 2.5 else 'moderate' if avg_confidence >= 1.5 else 'low'
+        uncertainty = {
+            'drugbank_confidence': drugbank_confidence,
+            'ml_confidence': ml_confidence,
+            'twosides_confidence': twosides_confidence,
+            'overall_confidence': overall_confidence,
+            'confounding_flag': float(context.get('twosides_max_prr', 0.0) or 0.0) > 100,
+        }
+
+        return self._build_result(
+            context=context,
+            probability=fused_prob,
+            interaction=fused_prob >= 0.5,
+            risk_index=risk_index,
+            severity=severity,
+            severity_idx=severity_idx,
+            decision_source='fused',
+            severity_source='derived_from_fusion',
+            component_scores=component_scores,
+            uncertainty=uncertainty,
+        )
+
+    def _ml_only_result(self, context, ml_prob):
+        risk_index = int(round(float(ml_prob) * 100))
+        severity, severity_idx = self._severity_from_risk(risk_index)
+        component_scores = {
+            'rule_score': 0.0,
+            'ml_score': round(float(ml_prob), 4),
+            'twosides_score': 0.0,
+            'weights': {'rule': 0.0, 'ml': 1.0, 'twosides': 0.0},
+        }
+        uncertainty = {
+            'drugbank_confidence': 'not_found',
+            'ml_confidence': self._ml_confidence(ml_prob),
+            'twosides_confidence': 'no_signal',
+            'overall_confidence': 'low',
+            'confounding_flag': False,
+        }
+        return self._build_result(
+            context=context,
+            probability=float(ml_prob),
+            interaction=float(ml_prob) >= 0.5,
+            risk_index=risk_index,
+            severity=severity,
+            severity_idx=severity_idx,
+            decision_source='ml_only',
+            severity_source='derived_from_ml',
+            component_scores=component_scores,
+            uncertainty=uncertainty,
+        )
+
+    def predict(self, drug_a, drug_b):
+        if str(drug_a).strip().lower() == str(drug_b).strip().lower():
+            return {'error': f"Both inputs refer to the same drug: '{drug_a}'"}
+
+        try:
+            context = self.feature_extractor.extract(drug_a, drug_b)
+        except ValueError as exc:
+            return {'error': str(exc)}
+
+        has_smiles_a = context['drug_a']['id'] in self.smiles_dict
+        has_smiles_b = context['drug_b']['id'] in self.smiles_dict
+        
+        ml_prob = None
+        if has_smiles_a and has_smiles_b:
+            try:
+                ml_prob = self._run_model(context)
+            except Exception as exc:
+                if context['evidence_tier'] != 'tier_1_direct_drugbank':
+                    return {'error': f'Model inference failed: {exc}'}
+        else:
+            if context['evidence_tier'] != 'tier_1_direct_drugbank':
+                if not has_smiles_a:
+                    return {'error': f"No molecular structure available for {context['drug_a']['name']} ({context['drug_a']['id']})"}
+                return {'error': f"No molecular structure available for {context['drug_b']['name']} ({context['drug_b']['id']})"}
+
+        if context['evidence_tier'] == 'tier_1_direct_drugbank':
+            return self._direct_hit_result(context, ml_prob)
+        if context['evidence_tier'] == 'tier_2_evidence_fusion':
+            return self._compute_fusion(context, ml_prob)
+        return self._ml_only_result(context, ml_prob)
+
+    def drug_names_with_smiles(self):
+        return sorted(
+            name for drugbank_id, name in self.feature_extractor.id_to_name.items()
+            if drugbank_id in self.smiles_dict
+        )
+
+
 def main():
-    parser = argparse.ArgumentParser(description='DrugInsight — DDI Prediction')
+    parser = argparse.ArgumentParser(description='DrugInsight DDI prediction')
     parser.add_argument('drug_a', type=str, help='First drug name or DrugBank ID')
     parser.add_argument('drug_b', type=str, help='Second drug name or DrugBank ID')
-    parser.add_argument('--json', action='store_true', help='Output raw JSON')
+    parser.add_argument('--json', action='store_true', help='Output JSON')
     args = parser.parse_args()
 
     predictor = DDIPredictor()
-    result    = predictor.predict(args.drug_a, args.drug_b)
-
+    result = predictor.predict(args.drug_a, args.drug_b)
     if 'error' in result:
         print(f"\nError: {result['error']}\n")
         return
@@ -324,45 +482,29 @@ def main():
         print(json.dumps(result, indent=2))
         return
 
-    # Pretty print
-    unc = result['uncertainty']
-
-    print(f"\n{'='*62}")
-    print(f"  DRUGINSIGHT -- DDI PREDICTION REPORT")
-    print(f"{'='*62}")
+    print(f"\n{'=' * 62}")
+    print('  DRUGINSIGHT -- DDI PREDICTION REPORT')
+    print(f"{'=' * 62}")
     print(f"  Drug A : {result['drug_a']:30s} ({result['drugbank_id_a']})")
     print(f"  Drug B : {result['drug_b']:30s} ({result['drugbank_id_b']})")
-    print(f"{'─'*62}")
-    print(f"  Interaction : {'YES' if result['interaction'] else 'NO'}")
-    print(f"  Severity    : {result['severity']}")
-    print(f"  Risk Index  : {result['risk_index']} / 100")
-    print(f"  Confidence  : {result['confidence']}")
-    print(f"{'─'*62}")
-    print(f"  Summary:")
-    print(f"    {result['summary']}")
-    print(f"\n  Mechanism:")
-    print(f"    {result['mechanism']}")
-    print(f"\n  Recommendation:")
-    print(f"    {result['recommendation']}")
-    print(f"{'─'*62}")
-    ev = result['evidence']
-    print(f"  Evidence Sources:")
-    print(f"    DrugBank [{unc['drugbank_confidence']:10s}]  "
-          f"enzymes={ev['drugbank']['shared_enzymes'] or 'none'}  "
-          f"targets={ev['drugbank']['shared_targets'] or 'none'}")
-    print(f"    TWOSIDES [{unc['twosides_confidence']:10s}]  "
-          f"PRR={ev['twosides']['max_PRR']:.1f}"
-          + ("  (confounding possible)" if ev['twosides']['confounding_flag'] else ""))
-    print(f"    ML Model [{unc['ml_confidence']:10s}]  "
-          f"raw_prob={result['component_scores']['ml_score']:.3f}")
-    print(f"{'─'*62}")
-    cs = result['component_scores']
-    print(f"  Component Scores:")
-    print(f"    Rule score     : {cs['rule_score']:.3f}  (w={cs['weights']['rule']})")
-    print(f"    ML score       : {cs['ml_score']:.3f}  (w={cs['weights']['ml']})")
-    print(f"    Twosides score : {cs['twosides_score']:.3f}  (w={cs['weights']['twosides']})")
-    print(f"  Overall confidence : {unc['overall_confidence']}")
-    print(f"{'='*62}\n")
+    print(f"{'-' * 62}")
+    print(f"  Tier         : {result['evidence_tier']}")
+    print(f"  Decision     : {result['decision_source']}")
+    print(f"  Interaction  : {'YES' if result['interaction'] else 'NO'}")
+    print(f"  Severity     : {result['severity']} ({result['severity_source']})")
+    print(f"  Risk Index   : {result['risk_index']} / 100")
+    print(f"  Confidence   : {result['confidence']}")
+    print(f"{'-' * 62}")
+    print(f"  Summary:\n    {result['summary']}")
+    print(f"\n  Mechanism:\n    {result['mechanism']}")
+    print(f"\n  Recommendation:\n    {result['recommendation']}")
+    print(f"{'-' * 62}")
+    print(f"  Shared enzymes    : {result['evidence']['drugbank']['shared_enzymes'] or 'none'}")
+    print(f"  Shared targets    : {result['evidence']['drugbank']['shared_targets'] or 'none'}")
+    print(f"  TWOSIDES top cond : {result['evidence']['twosides']['top_condition'] or 'none'}")
+    print(f"  ML raw prob       : {result['component_scores']['ml_score']:.3f}")
+    print(f"  Overall certainty : {result['uncertainty']['overall_confidence']}")
+    print(f"{'=' * 62}\n")
 
 
 if __name__ == '__main__':

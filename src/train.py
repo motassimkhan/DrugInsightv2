@@ -1,293 +1,368 @@
-from rdkit import Chem, RDLogger
-RDLogger.DisableLog('rdApp.*')
-
+import os
+import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
-import pandas as pd
-import numpy as np
-from torch_geometric.data import Batch
-from torch.utils.data import Dataset, DataLoader
+from rdkit import Chem, RDLogger
+from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score, average_precision_score
+from torch.utils.data import DataLoader, Dataset
+from torch_geometric.data import Batch
 
-from mol_graph      import smiles_to_graph
-from gnn_encoder    import GNNEncoder
-from ddi_classifier import DDIClassifier
-from feature_extractor import FeatureExtractor
-import os
+try:
+    from .ddi_classifier import DDIClassifier, load_feature_metadata
+    from .feature_extractor import FeatureExtractor
+    from .gnn_encoder import GNNEncoder
+    from .mol_graph import smiles_to_graph
+except ImportError:
+    from ddi_classifier import DDIClassifier, load_feature_metadata
+    from feature_extractor import FeatureExtractor
+    from gnn_encoder import GNNEncoder
+    from mol_graph import smiles_to_graph
 
-os.makedirs('models', exist_ok=True)
 
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"Using device: {DEVICE}")
+RDLogger.DisableLog('rdApp.*')
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+DATA_DIR = os.path.join(ROOT_DIR, 'data', 'processed')
+MODEL_PATH = os.path.join(ROOT_DIR, 'models', 'ddi_model_reprocessed.pt')
+FEATURE_METADATA_PATH = os.path.join(DATA_DIR, 'feature_metadata.json')
+
+os.makedirs(os.path.join(ROOT_DIR, 'models'), exist_ok=True)
 
 
-# ── Dataset ────────────────────────────────────────────────────────────────────
+def resolve_interactions_path():
+    candidates = [
+        os.path.join(DATA_DIR, 'drugbank_interactions_enriched.csv'),
+        os.path.join(DATA_DIR, 'drugbank_interactions_enriched.csv.gz'),
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    raise FileNotFoundError(
+        'Could not find drugbank_interactions_enriched.csv or '
+        'drugbank_interactions_enriched.csv.gz in data/processed.'
+    )
+
+def resolve_device():
+    requested = os.getenv('DRUGINSIGHT_DEVICE', 'auto').strip().lower()
+    if requested == 'cpu':
+        return torch.device('cpu'), 'forced by DRUGINSIGHT_DEVICE=cpu'
+
+    if requested.startswith('cuda'):
+        if torch.cuda.is_available():
+            return torch.device(requested), f'forced by DRUGINSIGHT_DEVICE={requested}'
+        return torch.device('cpu'), (
+            f"requested '{requested}' but CUDA is unavailable "
+            f"(torch.version.cuda={torch.version.cuda})"
+        )
+
+    if torch.cuda.is_available():
+        try:
+            torch.cuda.current_device()
+            return torch.device('cuda'), (
+                f"auto-selected CUDA ({torch.cuda.get_device_name(0)})"
+            )
+        except Exception as exc:
+            return torch.device('cpu'), f'CUDA detected but unusable ({exc})'
+
+    return torch.device('cpu'), f'CUDA unavailable (torch.version.cuda={torch.version.cuda})'
+
+
+DEVICE, DEVICE_REASON = resolve_device()
+print(f'Using device: {DEVICE} ({DEVICE_REASON})')
+print(f'Output checkpoint: {MODEL_PATH}')
+
+
 class DDIDataset(Dataset):
-    def __init__(self, df, graph_cache):
-        self.df          = df.reset_index(drop=True)
+    def __init__(self, df, graph_cache, feature_metadata):
         self.graph_cache = graph_cache
+        frame = df.reset_index(drop=True)
+        self.drug_1_ids = frame['drug_1_id'].tolist()
+        self.drug_2_ids = frame['drug_2_id'].tolist()
+        self.labels = torch.tensor(
+            pd.to_numeric(frame['label'], errors='coerce').fillna(0).astype(np.int64).to_numpy(),
+            dtype=torch.long,
+        )
+
+        feature_columns = []
+        for column in feature_metadata['feature_order']:
+            if column in frame.columns:
+                values = pd.to_numeric(frame[column], errors='coerce').fillna(0).to_numpy(dtype=np.float32)
+            else:
+                values = np.zeros(len(frame), dtype=np.float32)
+
+            cap = float(feature_metadata['feature_caps'].get(column, 1.0) or 1.0)
+            values = np.clip(values, 0.0, cap)
+            if cap > 0:
+                values = values / cap
+            feature_columns.append(values)
+
+        extras = np.stack(feature_columns, axis=1) if feature_columns else np.zeros((len(frame), 0), dtype=np.float32)
+        self.extras = torch.from_numpy(extras)
 
     def __len__(self):
-        return len(self.df)
+        return len(self.labels)
 
     def __getitem__(self, idx):
-        row     = self.df.iloc[idx]
-        graph_a = self.graph_cache.get(row['drug_1_id'])
-        graph_b = self.graph_cache.get(row['drug_2_id'])
-
+        graph_a = self.graph_cache.get(self.drug_1_ids[idx])
+        graph_b = self.graph_cache.get(self.drug_2_ids[idx])
         if graph_a is None or graph_b is None:
             return None
 
-        extra = torch.tensor([
-            min(float(row.get('shared_enzyme_count', 0) or 0), 21.0) / 21.0,
-            min(float(row.get('shared_target_count', 0) or 0), 36.0) / 36.0,
-            min(float(row.get('shared_transporter_count', 0) or 0), 10.0) / 10.0,
-            min(float(row.get('shared_carrier_count', 0) or 0), 10.0) / 10.0,
-            min(float(row.get('max_PRR', 0.0) or 0.0), 50.0) / 50.0,
-            float(row.get('twosides_found', 0) or 0),
-        ], dtype=torch.float)
-
-        label = torch.tensor(row['label'], dtype=torch.long)
-        return graph_a, graph_b, extra, label
+        return graph_a, graph_b, self.extras[idx], self.labels[idx]
 
 
 def collate_fn(batch):
-    batch = [b for b in batch if b is not None]
-    if len(batch) == 0:
+    batch = [item for item in batch if item is not None]
+    if not batch:
         return None
+
     graphs_a, graphs_b, extras, labels = zip(*batch)
     return (
         Batch.from_data_list(graphs_a),
         Batch.from_data_list(graphs_b),
         torch.stack(extras),
-        torch.stack(labels)
+        torch.stack(labels),
     )
 
 
-# ── Load & Filter Data ─────────────────────────────────────────────────────────
-print("Loading data...")
+def is_valid_smiles(smiles):
+    return Chem.MolFromSmiles(str(smiles).strip()) is not None
 
-def is_valid_smiles(smi):
-    mol = Chem.MolFromSmiles(str(smi).strip())
-    return mol is not None
 
-smiles_df = pd.read_csv('data/processed/drugbank_smiles_filtered.csv')
+print('Loading feature metadata...')
+feature_metadata = load_feature_metadata(FEATURE_METADATA_PATH)
+print(f"Feature dim: {feature_metadata['extra_dim']}")
+
+print('Loading validated SMILES...')
+smiles_df = pd.read_csv(os.path.join(DATA_DIR, 'drugbank_smiles_filtered.csv'))
 smiles_df = smiles_df[smiles_df['smiles'].apply(is_valid_smiles)]
 smiles_dict = dict(zip(smiles_df['drugbank_id'], smiles_df['smiles']))
-print(f"Valid drugs: {len(smiles_dict)}")
+print(f'Valid drugs with SMILES: {len(smiles_dict)}')
 
-print("Pre-computing molecular graphs...")
+print('Pre-computing molecular graphs...')
 graph_cache = {}
-for drug_id, smi in smiles_dict.items():
-    g = smiles_to_graph(smi)
-    if g is not None:
-        graph_cache[drug_id] = g
-print(f"Cached {len(graph_cache)} graphs")
+for drugbank_id, smiles in smiles_dict.items():
+    graph = smiles_to_graph(smiles)
+    if graph is not None:
+        graph_cache[drugbank_id] = graph
+print(f'Cached {len(graph_cache)} graphs')
 
-# ── Lookups for negative sampling ─────────────────────────────────────────────
-print("Building lookups...")
-fe = FeatureExtractor('data/processed')
-
-interactions = pd.read_csv('data/processed/drugbank_interactions_enriched.csv')
+print('Loading canonical pair data...')
+feature_extractor = FeatureExtractor(DATA_DIR)
+interactions_path = resolve_interactions_path()
+print(f'Using interactions file: {interactions_path}')
+interactions = pd.read_csv(interactions_path, low_memory=False)
 interactions = interactions[
-    interactions['drug_1_id'].isin(smiles_dict) &
-    interactions['drug_2_id'].isin(smiles_dict)
-]
-# interactions = interactions.sample(n=50000, random_state=42)  # remove for full run
-print(f"Interactions loaded: {len(interactions)}")
-interactions['label'] = 1
+    (interactions['label'] == 1) &
+    (interactions['direct_drugbank_hit'] == 1) &
+    (interactions['drug_1_id'].isin(graph_cache)) &
+    (interactions['drug_2_id'].isin(graph_cache))
+].copy()
+print(f'Direct DrugBank positives: {len(interactions)}')
 
-
-# ── 1. Drug-level split ────────────────────────────────────────────────────────
-all_drugs = sorted(list(set(interactions['drug_1_id']) | set(interactions['drug_2_id'])))
+all_drugs = sorted(set(interactions['drug_1_id']) | set(interactions['drug_2_id']))
 train_drugs, val_drugs = train_test_split(all_drugs, test_size=0.2, random_state=42)
-train_drugs, val_drugs = set(train_drugs), set(val_drugs)
+train_drugs = set(train_drugs)
+val_drugs = set(val_drugs)
 
 train_pos = interactions[
     interactions['drug_1_id'].isin(train_drugs) &
     interactions['drug_2_id'].isin(train_drugs)
 ].copy()
-
-# Both drugs unseen in val set (cold start)
 val_pos = interactions[
     interactions['drug_1_id'].isin(val_drugs) &
     interactions['drug_2_id'].isin(val_drugs)
 ].copy()
+print(f'Train positives: {len(train_pos)} | Val positives: {len(val_pos)}')
 
-# One unseen drug (commented out)
-# val_pos = interactions[
-#     (interactions['drug_1_id'].isin(val_drugs) |
-#      interactions['drug_2_id'].isin(val_drugs)) &
-#     ~(interactions['drug_1_id'].isin(val_drugs) &
-#       interactions['drug_2_id'].isin(val_drugs))
-# ].copy()
-
-print(f"Train positives: {len(train_pos)} | Val positives: {len(val_pos)}")
-
-
-# ── 2. Negative sampling with real features ───────────────────────────────────
-pos_pairs_global = set(zip(interactions['drug_1_id'], interactions['drug_2_id']))
-
-train_neg = fe.sample_hard_negatives(
-    train_drugs, pos_pairs_global, n=len(train_pos),
-    seed=42, candidate_multiplier=10, hard_fraction=0.7
+positive_pairs = {
+    (row.drug_1_id, row.drug_2_id)
+    for row in interactions.itertuples(index=False)
+}
+train_neg = feature_extractor.sample_hard_negatives(
+    train_drugs,
+    positive_pairs,
+    n=len(train_pos),
+    seed=42,
+    candidate_multiplier=10,
+    hard_fraction=0.7,
 )
-val_neg = fe.sample_hard_negatives(
-    val_drugs, pos_pairs_global, n=len(val_pos),
-    seed=43, candidate_multiplier=10, hard_fraction=0.7
+val_neg = feature_extractor.sample_hard_negatives(
+    val_drugs,
+    positive_pairs,
+    n=len(val_pos),
+    seed=43,
+    candidate_multiplier=10,
+    hard_fraction=0.7,
 )
+print(f'Train negatives: {len(train_neg)} | Val negatives: {len(val_neg)}')
 
-print(f"Train negatives: {len(train_neg)} | Val negatives: {len(val_neg)}")
+train_df = pd.concat([train_pos, train_neg], ignore_index=True).sample(frac=1.0, random_state=42)
+val_df = pd.concat([val_pos, val_neg], ignore_index=True).sample(frac=1.0, random_state=42)
 
-
-# ── 3. Assemble & shuffle ──────────────────────────────────────────────────────
-train_df = pd.concat([train_pos, train_neg], ignore_index=True).sample(frac=1, random_state=42)
-val_df   = pd.concat([val_pos,   val_neg],   ignore_index=True).sample(frac=1, random_state=42)
-
-for col in ['shared_enzyme_count', 'shared_target_count',
-            'shared_transporter_count', 'shared_carrier_count',
-            'max_PRR', 'twosides_found']:
-    for d in [train_df, val_df]:
-        if col not in d.columns:
-            d[col] = 0.0
-        d[col] = d[col].fillna(0.0)
-
-
-# ── 4. Sanity check ───────────────────────────────────────────────────────────
 train_ids = set(train_df['drug_1_id']) | set(train_df['drug_2_id'])
-val_ids   = set(val_df['drug_1_id'])   | set(val_df['drug_2_id'])
-print(f"Drug overlap: {len(train_ids & val_ids)}")  # must be 0
-print(f"Train: {len(train_df)} | Val: {len(val_df)}")
+val_ids = set(val_df['drug_1_id']) | set(val_df['drug_2_id'])
+print(f'Drug overlap between splits: {len(train_ids & val_ids)}')
+print(f'Train rows: {len(train_df)} | Val rows: {len(val_df)}')
 
-train_ds = DDIDataset(train_df, graph_cache)
-val_ds   = DDIDataset(val_df,   graph_cache)
-
-train_loader = DataLoader(train_ds, batch_size=64, shuffle=True,
-                          collate_fn=collate_fn, num_workers=0, pin_memory=True)
-val_loader   = DataLoader(val_ds,   batch_size=64, shuffle=False,
-                          collate_fn=collate_fn, num_workers=0, pin_memory=True)
-
-
-# ── Models ─────────────────────────────────────────────────────────────────────
-gnn        = GNNEncoder().to(DEVICE)
-classifier = DDIClassifier(extra_features=6, dropout=0.5).to(DEVICE)  # 6 features now
-
-optimizer = torch.optim.Adam([
-    {'params': gnn.parameters(),        'lr': 3e-5},  # 3x slower than before
-    {'params': classifier.parameters(), 'lr': 1e-4},
-], weight_decay=5e-4)
-
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-    optimizer, mode='max', factor=0.5, patience=3
+train_loader = DataLoader(
+    DDIDataset(train_df, graph_cache, feature_metadata),
+    batch_size=64,
+    shuffle=True,
+    num_workers=0,
+    pin_memory=(DEVICE.type == 'cuda'),
+    collate_fn=collate_fn,
 )
+val_loader = DataLoader(
+    DDIDataset(val_df, graph_cache, feature_metadata),
+    batch_size=64,
+    shuffle=False,
+    num_workers=0,
+    pin_memory=(DEVICE.type == 'cuda'),
+    collate_fn=collate_fn,
+)
+print(f'Train batches per epoch: {len(train_loader)} | Val batches: {len(val_loader)}')
 
+gnn = GNNEncoder().to(DEVICE)
+classifier = DDIClassifier(feature_metadata_path=FEATURE_METADATA_PATH, dropout=0.5).to(DEVICE)
+
+if DEVICE.type == 'cuda':
+    torch.backends.cudnn.benchmark = True
+
+optimizer = torch.optim.Adam(
+    [
+        {'params': gnn.parameters(), 'lr': 3e-5},
+        {'params': classifier.parameters(), 'lr': 1e-4},
+    ],
+    weight_decay=5e-4,
+)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    optimizer,
+    mode='max',
+    factor=0.5,
+    patience=3,
+)
 criterion = nn.BCEWithLogitsLoss()
 
-# Embedding sanity check
 gnn.eval()
 with torch.no_grad():
     sample_batch = next(iter(train_loader))
-    if sample_batch:
-        g_a, g_b, extra, labels = sample_batch
-        g_a = g_a.to(DEVICE)
-        emb = gnn(g_a)
-        print(f"Embedding mean: {emb.mean().item():.4f}")
-        print(f"Embedding std:  {emb.std().item():.4f}")
-        print(f"Any NaN:        {torch.isnan(emb).any()}")
-        print(f"Extra sample:   {extra[0]}")  # should now show 6 values
+    if sample_batch is not None:
+        graphs_a, _, extra, _ = sample_batch
+        embeddings = gnn(graphs_a.to(DEVICE))
+        print(f'Embedding mean: {embeddings.mean().item():.4f}')
+        print(f'Embedding std:  {embeddings.std().item():.4f}')
+        print(f'Any NaN:        {torch.isnan(embeddings).any()}')
+        print(f'Extra sample:   {extra[0]}')
 
 
-# ── Training loop ──────────────────────────────────────────────────────────────
 def train_epoch(loader):
-    gnn.train(); classifier.train()
-    total_loss = 0
-    correct = total = 0
+    gnn.train()
+    classifier.train()
+    total_loss = 0.0
+    total = 0
+    correct = 0
+    log_every = max(1, len(loader) // 10)
 
-    for batch in loader:
+    for step, batch in enumerate(loader, start=1):
         if batch is None:
             continue
-        g_a, g_b, extra, labels = batch
-        g_a    = g_a.to(DEVICE)
-        g_b    = g_b.to(DEVICE)
-        extra  = extra.to(DEVICE)
-        labels = labels.float().to(DEVICE)
 
-        embed_a = gnn(g_a)
-        embed_b = gnn(g_b)
+        graphs_a, graphs_b, extra, labels = batch
+        graphs_a = graphs_a.to(DEVICE, non_blocking=(DEVICE.type == 'cuda'))
+        graphs_b = graphs_b.to(DEVICE, non_blocking=(DEVICE.type == 'cuda'))
+        extra = extra.to(DEVICE, non_blocking=(DEVICE.type == 'cuda'))
+        labels = labels.float().to(DEVICE, non_blocking=(DEVICE.type == 'cuda'))
 
-        # Symmetry augmentation
+        embed_a = gnn(graphs_a)
+        embed_b = gnn(graphs_b)
         if torch.rand(1).item() > 0.5:
             embed_a, embed_b = embed_b, embed_a
 
-        prob, _ = classifier(embed_a, embed_b, extra)
-        prob = prob.view(-1)
-        loss = criterion(prob, labels)
+        logits, _ = classifier(embed_a, embed_b, extra)
+        logits = logits.view(-1)
+        loss = criterion(logits, labels)
 
         optimizer.zero_grad()
         loss.backward()
         torch.nn.utils.clip_grad_norm_(
             list(gnn.parameters()) + list(classifier.parameters()),
-            max_norm=1.0
+            max_norm=1.0,
         )
         optimizer.step()
+
         with torch.no_grad():
-            preds = (torch.sigmoid(prob) > 0.5).long()
+            preds = (torch.sigmoid(logits) > 0.5).long()
             correct += (preds == labels.long()).sum().item()
-            total   += labels.size(0)
+            total += labels.size(0)
         total_loss += loss.item()
 
-    train_acc = correct / total if total > 0 else 0
-    return total_loss / len(loader), train_acc
+        if step % log_every == 0 or step == len(loader):
+            running_acc = correct / total if total else 0.0
+            print(
+                f'  Train step {step}/{len(loader)} | '
+                f'Loss: {loss.item():.4f} | Running Acc: {running_acc:.4f}'
+            )
+
+    return total_loss / max(len(loader), 1), (correct / total if total else 0.0)
 
 
 def eval_epoch(loader):
-    gnn.eval(); classifier.eval()
-    correct = total = 0
-    tp = fp = tn = fn = 0
+    gnn.eval()
+    classifier.eval()
+    total = 0
+    correct = 0
     y_true = []
     y_prob = []
+    tp = fp = tn = fn = 0
 
     with torch.no_grad():
-        for batch in loader:
+        for step, batch in enumerate(loader, start=1):
             if batch is None:
                 continue
-            g_a, g_b, extra, labels = batch
-            g_a    = g_a.to(DEVICE)
-            g_b    = g_b.to(DEVICE)
-            extra  = extra.to(DEVICE)
-            labels = labels.to(DEVICE)
 
-            embed_a = gnn(g_a)
-            embed_b = gnn(g_b)
-            prob, _ = classifier(embed_a, embed_b, extra)
-            prob = torch.sigmoid(prob).view(-1)
-            preds = (prob > 0.5).long()
+            graphs_a, graphs_b, extra, labels = batch
+            graphs_a = graphs_a.to(DEVICE, non_blocking=(DEVICE.type == 'cuda'))
+            graphs_b = graphs_b.to(DEVICE, non_blocking=(DEVICE.type == 'cuda'))
+            extra = extra.to(DEVICE, non_blocking=(DEVICE.type == 'cuda'))
+            labels = labels.to(DEVICE, non_blocking=(DEVICE.type == 'cuda'))
+
+            logits, _ = classifier(gnn(graphs_a), gnn(graphs_b), extra)
+            probs = torch.sigmoid(logits).view(-1)
+            preds = (probs > 0.5).long()
+
             correct += (preds == labels).sum().item()
-            total   += labels.size(0)
+            total += labels.size(0)
+            y_true.extend(labels.detach().cpu().numpy().tolist())
+            y_prob.extend(probs.detach().cpu().numpy().tolist())
 
             for pred, label in zip(preds, labels):
-                if   label == 1 and pred == 1: tp += 1
-                elif label == 0 and pred == 0: tn += 1
-                elif label == 1 and pred == 0: fn += 1
-                elif label == 0 and pred == 1: fp += 1
+                if label == 1 and pred == 1:
+                    tp += 1
+                elif label == 0 and pred == 0:
+                    tn += 1
+                elif label == 0 and pred == 1:
+                    fp += 1
+                else:
+                    fn += 1
 
-            y_true.extend(labels.detach().cpu().numpy().tolist())
-            y_prob.extend(prob.detach().cpu().numpy().tolist())
+            if step == len(loader):
+                print(f'  Eval step {step}/{len(loader)}')
 
-    print(f"  TP:{tp} TN:{tn} FP:{fp} FN:{fn}")
-    acc = correct / total if total > 0 else 0
+    print(f'  TP:{tp} TN:{tn} FP:{fp} FN:{fn}')
+    accuracy = correct / total if total else 0.0
     try:
         auc = roc_auc_score(y_true, y_prob) if len(set(y_true)) > 1 else float('nan')
         ap = average_precision_score(y_true, y_prob) if len(set(y_true)) > 1 else float('nan')
     except Exception:
         auc = float('nan')
         ap = float('nan')
-    return acc, auc, ap
+    return accuracy, auc, ap
 
 
-# ── Run training ───────────────────────────────────────────────────────────────
-EPOCHS = 20
+EPOCHS = 10
 best_auc = -1.0
 patience = 6
 patience_left = patience
@@ -298,24 +373,21 @@ for epoch in range(1, EPOCHS + 1):
     scheduler.step(val_auc if not np.isnan(val_auc) else val_acc)
 
     print(
-        f"Epoch {epoch:02d} | Loss: {loss:.4f} | "
-        f"Train Acc: {train_acc:.4f} | Val Acc: {val_acc:.4f} | "
-        f"Val AUC: {val_auc:.4f} | Val AP: {val_ap:.4f}"
+        f'Epoch {epoch:02d} | Loss: {loss:.4f} | '
+        f'Train Acc: {train_acc:.4f} | Val Acc: {val_acc:.4f} | '
+        f'Val AUC: {val_auc:.4f} | Val AP: {val_ap:.4f}'
     )
 
     improved = (not np.isnan(val_auc) and val_auc > best_auc + 1e-4)
     if improved:
         best_auc = val_auc
         patience_left = patience
-        torch.save({
-            'gnn':        gnn.state_dict(),
-            'classifier': classifier.state_dict()
-        }, 'models/ddi_model.pt')
-        print(f"  Saved best model (val_auc={best_auc:.4f})")
+        torch.save({'gnn': gnn.state_dict(), 'classifier': classifier.state_dict()}, MODEL_PATH)
+        print(f'  Saved best model (val_auc={best_auc:.4f})')
     else:
         patience_left -= 1
         if patience_left <= 0:
-            print(f"Early stopping at epoch {epoch:02d} (best_val_auc={best_auc:.4f})")
+            print(f'Early stopping at epoch {epoch:02d} (best_val_auc={best_auc:.4f})')
             break
 
-print(f"\nTraining complete. Best val AUC: {best_auc:.4f}")
+print(f'\nTraining complete. Best val AUC: {best_auc:.4f}')

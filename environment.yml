@@ -8,8 +8,9 @@ dependencies:
   - pip
   - pip:
       - streamlit
-      - torch
-      - torch-geometric
+      - --extra-index-url https://download.pytorch.org/whl/cpu
+      - torch==2.6.0+cpu
+      - torch-geometric==2.7.0
       - numpy
       - pandas
       - scikit-learn
