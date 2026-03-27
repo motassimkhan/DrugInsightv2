@@ -16,7 +16,11 @@ def main():
     print("\n" + "="*50)
     print("Raw Predictor Output:")
     print("="*50)
-    pprint.pprint(result)
+    # The predictor already runs the explainer internally.
+    # The explanation fields are embedded directly in `result`:
+    print("Summary:       ", result.get('summary'))
+    print("Mechanism:     ", result.get('mechanism'))
+    print("Recommendation:", result.get('recommendation'))
     
     print("\n" + "="*50)
     print("Explainer Output:")
