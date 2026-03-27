@@ -94,6 +94,17 @@ class FeatureExtractor:
         self.drug_catalog = pd.read_csv(os.path.join(self.data_dir, 'drug_catalog.csv'))
         self.id_to_name = dict(zip(self.drug_catalog['drugbank_id'], self.drug_catalog['name']))
 
+        cols = ['indication', 'pharmacodynamics', 'mechanism_of_action', 'metabolism', 'absorption', 'half_life', 'toxicity', 'categories', 'description']
+        self.drug_info = {}
+        for row in self.drug_catalog.itertuples(index=False):
+            info = {}
+            for col in cols:
+                if hasattr(row, col):
+                    val = str(getattr(row, col)).strip()
+                    if val.lower() not in ['', 'nan', 'none']:
+                        info[col] = val
+            self.drug_info[row.drugbank_id] = info
+
         self.name_to_ids = {}
         self.synonym_to_ids = {}
         for row in self.drug_catalog.itertuples(index=False):
@@ -408,6 +419,8 @@ class FeatureExtractor:
         context = {
             'drug_a': {'id': id_a, 'name': name_a},
             'drug_b': {'id': id_b, 'name': name_b},
+            'drug_a_info': self.drug_info.get(id_a, {}),
+            'drug_b_info': self.drug_info.get(id_b, {}),
             'shared_enzymes': self.get_shared_enzymes(id_a, id_b),
             'shared_targets': self.get_shared_targets(id_a, id_b),
             'shared_pathways': self.get_shared_pathways(id_a, id_b),

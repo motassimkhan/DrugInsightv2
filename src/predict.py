@@ -31,6 +31,15 @@ DEFAULT_MODEL_FILENAMES = (
     'ddi_model.pt',
 )
 
+FUSION_WEIGHTS_PATH = os.path.join(ROOT_DIR, 'models', 'fusion_weights.json')
+
+def load_fusion_weights(path=FUSION_WEIGHTS_PATH):
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            return json.load(f)
+    return None
+
+FUSION_WEIGHTS = load_fusion_weights()
 
 def resolve_model_path(model_path=None):
     candidate_paths = []
@@ -191,12 +200,49 @@ class DDIPredictor:
             return 'weak'
         return 'no_signal'
 
+    def _get_rule_score(self, context):
+        rule_score = 0.0
+        if int(context.get('shared_enzyme_count', 0) or 0) > 0:
+            rule_score += min(0.32, 0.16 + (0.04 * int(context['shared_enzyme_count'])))
+        if int(context.get('shared_target_count', 0) or 0) > 0:
+            rule_score += min(0.22, 0.10 + (0.03 * int(context['shared_target_count'])))
+        if int(context.get('shared_transporter_count', 0) or 0) > 0:
+            rule_score += min(0.10, 0.04 + (0.02 * int(context['shared_transporter_count'])))
+        if int(context.get('shared_carrier_count', 0) or 0) > 0:
+            rule_score += min(0.08, 0.03 + (0.02 * int(context['shared_carrier_count'])))
+        if int(context.get('shared_pathway_count', 0) or 0) > 0:
+            rule_score += min(0.08, 0.02 + (0.01 * int(context['shared_pathway_count'])))
+        if int(context.get('shared_major_cyp_count', 0) or 0) > 0:
+            rule_score += min(0.18, 0.10 + (0.04 * int(context['shared_major_cyp_count'])))
+        return round(min(rule_score, 0.9), 4)
+
+    def _get_calibrated_probability(self, rule_score, ml_prob, twosides_score):
+        if not FUSION_WEIGHTS:
+            return min(max(float(ml_prob)*0.5 + rule_score*0.3 + twosides_score*0.2, 0.0), 1.0)
+        import math
+        c = FUSION_WEIGHTS['coef']
+        i = FUSION_WEIGHTS['intercept']
+        logit = i + c[0]*rule_score + c[1]*float(ml_prob) + c[2]*twosides_score
+        return 1.0 / (1.0 + math.exp(-logit))
+
     def _severity_from_risk(self, risk_index):
         if risk_index >= 70:
             return 'Major', 2
         if risk_index >= 40:
             return 'Moderate', 1
         return 'Minor', 0
+
+    def _fusion_weight_dict(self):
+        """Return fusion weights in a UI-friendly dict shape."""
+        if not FUSION_WEIGHTS:
+            return {'rule': 0.3, 'ml': 0.5, 'twosides': 0.2, 'heuristic': True}
+
+        coefs = FUSION_WEIGHTS.get('coef', [])
+        if isinstance(coefs, (list, tuple)) and len(coefs) >= 3:
+            return {'rule': float(coefs[0]), 'ml': float(coefs[1]), 'twosides': float(coefs[2])}
+
+        # Defensive fallback if config exists but is malformed.
+        return {'rule': 0.3, 'ml': 0.5, 'twosides': 0.2, 'heuristic': True}
 
     def _build_result(
         self,
@@ -266,39 +312,52 @@ class DDIPredictor:
         }
 
     def _direct_hit_result(self, context, ml_prob=None):
-        probability = 0.72
-        probability += 0.05 * min(int(context.get('shared_major_cyp_count', 0)), 2)
-        probability += 0.03 * min(int(context.get('shared_enzyme_count', 0)), 3)
-        probability += 0.02 * min(int(context.get('shared_target_count', 0)), 3)
-        probability += 0.01 * min(int(context.get('shared_pathway_count', 0)), 2)
-        probability += 0.02 if int(context.get('twosides_found', 0)) else 0.0
-        probability += 0.03 if float(context.get('twosides_max_prr', 0.0) or 0.0) > 10 else 0.0
-        probability = min(probability, 0.95)
-        risk_index = int(round(probability * 100))
+        rule_score = self._get_rule_score(context)
+
+        # Tier-1 policy: use only DrugBank-derived rule score.
+        drugbank_prob = round(min(max(float(rule_score), 0.0), 1.0), 4)
+        risk_index = int(round(drugbank_prob * 100))
         severity, severity_idx = self._severity_from_risk(risk_index)
 
+        info_a = context.get('drug_a_info', {})
+        info_b = context.get('drug_b_info', {})
+        tox_a = info_a.get('toxicity', '').lower()
+        tox_b = info_b.get('toxicity', '').lower()
+        high_risk_keywords = ['narrow therapeutic', 'fatal', 'life-threatening', 'severe toxicity']
+        is_high_risk = any(k in tox_a for k in high_risk_keywords) or any(k in tox_b for k in high_risk_keywords)
+
+        severity_source = 'drugbank_rule_only'
+        if is_high_risk and risk_index < 70:
+            severity = 'Major'
+            severity_idx = 2
+            risk_index = max(risk_index, 75)
+            severity_source = 'safety_net_nti_override'
+
         component_scores = {
-            'rule_score': 1.0,
-            'ml_score': round(float(ml_prob), 4) if ml_prob is not None else 0.0,
-            'twosides_score': self._twosides_score(context),
-            'weights': {'rule': 1.0, 'ml': 0.0, 'twosides': 0.0},
+            'rule_score': rule_score,
+            'ml_score': 0.0,
+            'twosides_score': 0.0,
+            'weights': {'rule': 1.0, 'ml': 0.0, 'twosides': 0.0, 'policy': 'tier1_drugbank_only'},
         }
+        
         uncertainty = {
             'drugbank_confidence': 'found',
-            'ml_confidence': self._ml_confidence(ml_prob) if ml_prob is not None else 'not_run',
-            'twosides_confidence': self._twosides_confidence(context),
+            'ml_confidence': 'not_used',
+            'twosides_confidence': 'not_used',
             'overall_confidence': 'high',
             'confounding_flag': float(context.get('twosides_max_prr', 0.0) or 0.0) > 100,
+            'tier1_policy': 'drugbank_only',
         }
+        
         return self._build_result(
             context=context,
-            probability=probability,
+            probability=drugbank_prob,
             interaction=True,
             risk_index=risk_index,
             severity=severity,
             severity_idx=severity_idx,
             decision_source='drugbank_direct',
-            severity_source='derived_rule_based_direct',
+            severity_source=severity_source,
             component_scores=component_scores,
             uncertainty=uncertainty,
         )
@@ -319,35 +378,11 @@ class DDIPredictor:
             )
         )
 
-        rule_score = 0.0
-        if int(context.get('shared_enzyme_count', 0) or 0) > 0:
-            rule_score += min(0.32, 0.16 + (0.04 * int(context['shared_enzyme_count'])))
-        if int(context.get('shared_target_count', 0) or 0) > 0:
-            rule_score += min(0.22, 0.10 + (0.03 * int(context['shared_target_count'])))
-        if int(context.get('shared_transporter_count', 0) or 0) > 0:
-            rule_score += min(0.10, 0.04 + (0.02 * int(context['shared_transporter_count'])))
-        if int(context.get('shared_carrier_count', 0) or 0) > 0:
-            rule_score += min(0.08, 0.03 + (0.02 * int(context['shared_carrier_count'])))
-        if int(context.get('shared_pathway_count', 0) or 0) > 0:
-            rule_score += min(0.08, 0.02 + (0.01 * int(context['shared_pathway_count'])))
-        if int(context.get('shared_major_cyp_count', 0) or 0) > 0:
-            rule_score += min(0.18, 0.10 + (0.04 * int(context['shared_major_cyp_count'])))
-        rule_score = round(min(rule_score, 0.9), 4)
-
+        rule_score = self._get_rule_score(context)
         twosides_score = self._twosides_score(context)
-        if has_structural and int(context.get('twosides_found', 0) or 0):
-            weights = {'rule': 0.45, 'ml': 0.35, 'twosides': 0.20}
-        elif has_structural:
-            weights = {'rule': 0.55, 'ml': 0.45, 'twosides': 0.0}
-        else:
-            weights = {'rule': 0.0, 'ml': 0.70, 'twosides': 0.30}
-
-        fused_prob = (
-            (weights['rule'] * rule_score) +
-            (weights['ml'] * float(ml_prob)) +
-            (weights['twosides'] * twosides_score)
-        )
-        fused_prob = round(min(max(fused_prob, 0.0), 1.0), 4)
+        
+        fused_prob = self._get_calibrated_probability(rule_score, ml_prob, twosides_score)
+        fused_prob = round(fused_prob, 4)
         risk_index = int(round(fused_prob * 100))
         severity, severity_idx = self._severity_from_risk(risk_index)
 
@@ -355,7 +390,7 @@ class DDIPredictor:
             'rule_score': rule_score,
             'ml_score': round(float(ml_prob), 4),
             'twosides_score': twosides_score,
-            'weights': weights,
+            'weights': self._fusion_weight_dict(),
         }
 
         confidence_scores = {
