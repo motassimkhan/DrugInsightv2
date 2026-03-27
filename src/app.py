@@ -483,15 +483,15 @@ def main():
     <div class="metric-row">
         <div class="metric-box">
             <div class="metric-val" style="color:{risk_color(sev) if found else '#3aad6e'}">{result['risk_index']}</div>
-            <div class="metric-lbl">Risk Index / 100</div>
+            <div class="metric-lbl">Risk Index (Severity Scale)</div>
         </div>
         <div class="metric-box">
             <div class="metric-val">{result['confidence']}</div>
-            <div class="metric-lbl">Fused Confidence</div>
+            <div class="metric-lbl">Interaction Probability (Fused)</div>
         </div>
         <div class="metric-box">
             <div class="metric-val" style="font-size:1.1rem;padding-top:0.3rem">{result['uncertainty']['overall_confidence'].upper()}</div>
-            <div class="metric-lbl">Overall Confidence</div>
+            <div class="metric-lbl">Evidence Certainty</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
