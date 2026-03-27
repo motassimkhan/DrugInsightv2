@@ -314,9 +314,18 @@ class DDIPredictor:
     def _direct_hit_result(self, context, ml_prob=None):
         rule_score = self._get_rule_score(context)
 
-        # Tier-1 policy: use only DrugBank-derived rule score.
-        drugbank_prob = round(min(max(float(rule_score), 0.0), 1.0), 4)
-        risk_index = int(round(drugbank_prob * 100))
+        # Tier-1 policy: blend rule score with ML when available (rule 70%, ML 30%).
+        # If ML is unavailable, fall back to rule score alone.
+        if ml_prob is not None:
+            blended_prob = round(min(max(0.70 * rule_score + 0.30 * float(ml_prob), 0.0), 1.0), 4)
+            weights_used = {'rule': 0.70, 'ml': 0.30, 'twosides': 0.0, 'policy': 'tier1_drugbank_blended'}
+            ml_score_display = round(float(ml_prob), 4)
+        else:
+            blended_prob = round(min(max(float(rule_score), 0.0), 1.0), 4)
+            weights_used = {'rule': 1.0, 'ml': 0.0, 'twosides': 0.0, 'policy': 'tier1_drugbank_only'}
+            ml_score_display = 0.0
+
+        risk_index = int(round(blended_prob * 100))
         severity, severity_idx = self._severity_from_risk(risk_index)
 
         info_a = context.get('drug_a_info', {})
@@ -326,8 +335,10 @@ class DDIPredictor:
         high_risk_keywords = ['narrow therapeutic', 'fatal', 'life-threatening', 'severe toxicity']
         is_high_risk = any(k in tox_a for k in high_risk_keywords) or any(k in tox_b for k in high_risk_keywords)
 
-        severity_source = 'drugbank_rule_only'
-        if is_high_risk and risk_index < 70:
+        severity_source = 'drugbank_blended' if ml_prob is not None else 'drugbank_rule_only'
+        # Safety-net NTI override: only fires when there is real structural evidence
+        # (rule_score >= 0.15) AND the blended risk is still below Major threshold.
+        if is_high_risk and rule_score >= 0.15 and risk_index < 70:
             severity = 'Major'
             severity_idx = 2
             risk_index = max(risk_index, 75)
@@ -335,23 +346,24 @@ class DDIPredictor:
 
         component_scores = {
             'rule_score': rule_score,
-            'ml_score': 0.0,
+            'ml_score': ml_score_display,
             'twosides_score': 0.0,
-            'weights': {'rule': 1.0, 'ml': 0.0, 'twosides': 0.0, 'policy': 'tier1_drugbank_only'},
+            'weights': weights_used,
         }
-        
+
+        ml_conf = self._ml_confidence(float(ml_prob)) if ml_prob is not None else 'not_used'
         uncertainty = {
             'drugbank_confidence': 'found',
-            'ml_confidence': 'not_used',
+            'ml_confidence': ml_conf,
             'twosides_confidence': 'not_used',
-            'overall_confidence': 'high',
+            'overall_confidence': 'high' if ml_prob is not None else 'moderate',
             'confounding_flag': float(context.get('twosides_max_prr', 0.0) or 0.0) > 100,
-            'tier1_policy': 'drugbank_only',
+            'tier1_policy': 'tier1_drugbank_blended' if ml_prob is not None else 'tier1_drugbank_only',
         }
-        
+
         return self._build_result(
             context=context,
-            probability=drugbank_prob,
+            probability=blended_prob,
             interaction=True,
             risk_index=risk_index,
             severity=severity,
