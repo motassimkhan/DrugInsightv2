@@ -1,0 +1,34 @@
+@startuml
+left to right direction
+skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBorderColor Black
+
+start
+
+:Receive Drug Query;
+:Resolve Drug Names & Validate;
+
+if (Valid Graphs?) then (No)
+  :Return Error (Structure not found);
+  stop
+else (Yes)
+endif
+
+fork
+  :Convert SMILES to PyG Graph;
+  :Execute PyTorch Model\n(GNN + MLP);
+  :Yield ML Probability Score;
+fork again
+  :Fetch DrugBank Overlap\n(Enzymes, Targets, etc);
+  :Compute Rule Score;
+fork again
+  :Fetch TWOSIDES Database;
+  :Retrieve PRR Signal Score;
+end fork
+
+:Adaptive Evidence Fusion Layer;
+:Generate Narrative Explanation via Rules;
+:Return Final Risk Index & Severity;
+
+stop
+@enduml

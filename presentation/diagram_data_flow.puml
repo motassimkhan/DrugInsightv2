@@ -1,0 +1,49 @@
+@startuml
+left to right direction
+skinparam DefaultFontSize 12
+
+skinparam rectangle {
+    BackgroundColor LightCyan
+    BorderColor Black
+    roundCorner 20
+}
+
+skinparam usecase {
+    BackgroundColor LightYellow
+    BorderColor Black
+}
+
+skinparam database {
+    BackgroundColor LightGreen
+    BorderColor Black
+}
+
+actor "User" as U
+
+rectangle "DrugInsight Processing Pipeline" {
+    usecase "1. Resolve Query" as P1
+    usecase "2. Extract Features\n& Build Graph" as P2
+    usecase "3. Deep ML Inference\n(GNN + MLP)" as P3
+    usecase "4. Evidence Fusion\n& Explainer" as P4
+}
+
+database "DrugBank Data\n(Local SQLite)" as DB1
+database "TWOSIDES Data\n(Local SQLite)" as DB2
+database "Trained Model Weights" as DB3
+
+U --> P1 : "Drug Pair Names"
+P1 --> DB1 : "Fetch IDs"
+P1 --> P2 : "Mapped Pairs"
+
+P2 --> DB1 : "Fetch SMILES,\nEnzymes, Targets"
+P2 --> DB2 : "Fetch PRR Signal"
+
+P2 --> P3 : "Inputs (518-dim,\nGraphs)"
+DB3 --> P3 : "Pre-trained Weights"
+
+P3 --> P4 : "Neural Probabilities"
+P2 --> P4 : "Tabular Engine Context"
+
+P4 --> U : "Risk Assessment\n& Explanation"
+
+@enduml

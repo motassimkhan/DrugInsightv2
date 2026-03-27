@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+skinparam class {
+    BackgroundColor LightCyan
+    BorderColor Black
+    ArrowColor Black
+}
+
+class DrugInsightPredictor {
+  +predict(drugA: str, drugB: str): dict
+  -compute_fusion(ml_prob, rule_score, prr_signal)
+}
+
+class FeatureExtractor {
+  +resolve_drug(name: str)
+  +extract_pair_features(id_a, id_b)
+  +build_graphs(smiles)
+}
+
+class GNNEncoder {
+  +AttentiveFP(graph_batch)
+  +forward(): tensor_256D
+}
+
+class DDIClassifier {
+  +MLP_Layers(hidden=512, 256, 128)
+  +forward(embeddings, extra_feats)
+}
+
+class RuleExplainer {
+  +derive_mechanism(feature_dict)
+  +generate_explanation(): string
+}
+
+DrugInsightPredictor "1" *--> "1" FeatureExtractor : Coordinates Data
+DrugInsightPredictor "1" *--> "1" RuleExplainer : Coordinates Text
+DrugInsightPredictor "1" *--> "1" GNNEncoder : Runs Network
+DrugInsightPredictor "1" *--> "1" DDIClassifier : Runs Network
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+skinparam maxMessageSize 150
+skinparam ResponseMessageBelowArrow true
+autonumber
+
+actor "User" as U
+participant "Web UI\n(Streamlit)" as UI
+participant "API Layer\n(FastAPI)" as API
+participant "Predictor\nEngine" as Engine
+database "Local DB\n(DrugBank/TWOSIDES)" as DB
+
+U -> UI : Input "Drug A" + "Drug B"
+UI -> API : HTTP POST /predict
+API -> Engine : run_prediction(drug_a, drug_b)
+
+Engine -> DB : Map to Canonical IDs
+return IDs & Matches
+
+Engine -> DB : Fetch Pair Features\n(Targets, Enzymes, PRR)
+return Tabular Features & SMILES
+
+Engine -> Engine : RDKit: SMILES -> Graph
+Engine -> Engine : PyG: Graph -> Encoder -> MLP
+Engine -> Engine : Fuse Rule + ML + PRR
+Engine -> Engine : Generate Text Explanation
+
+Engine --> API : Prediction Payload (JSON)
+API --> UI : Risk, Severity, Explanation
+UI --> U : Render Visual Results
+
+@enduml

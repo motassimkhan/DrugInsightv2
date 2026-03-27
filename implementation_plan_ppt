@@ -1,0 +1,38 @@
+# DrugInsightv2 PPT Implementation Plan
+
+## Goal Description
+Create a comprehensive presentation outlining the complete DrugInsightv2 project. The user specifically requested to explain the **Training Process** first, followed by the **System Architecture**. The goal is to provide a structured, slide-by-slide plan that communicates both the machine learning rigor and the transparent architecture of the hybrid DDI prediction system.
+
+## Proposed Strategy
+
+The presentation will be structured linearly, treating the ML problem setup and training as the foundation, then showing how that model fits into the broader application architecture.
+
+### Presentation Structure
+
+**1. Introduction & Problem Statement (2 Slides)**
+*   **Slide 1: Title & Abstract.** DrugInsightv2: Transparent, Hybrid DDI Prediction.
+*   **Slide 2: The Problem.** Pure ML lacks explainability; purely rule-based approaches lack generalizability for undocumented/unseen interactions. 
+
+**2. Data Pipeline & Preprocessing (2 Slides)**
+*   **Slide 3: Data Sources.** DrugBank for curated mechanisms/SMILES, TWOSIDES for post-market real-world signals (PRR). Bridged via RxNorm.
+*   **Slide 4: Feature Engineering.** Extracting molecular features (RDKit) and 6-dimensional pair features (shared enzymes/targets, PRR capped limits).
+
+**3. Model Training Process (3 Slides) *[Requested Priority]* **
+*   **Slide 5: Training Objectives.** Supervised binary classification using direct DrugBank interactions.
+*   **Slide 6: Negative Sampling & Splitting.** Emphasizing the *cold-start drug-level split* (80/20) for true generalization and the 70/30 hard/easy negative sampling based on "plausibility" metrics to prevent trivial learning shortcuts.
+*   **Slide 7: Neural Architecture.** AttentiveFP GNN for converting SMILES into 256-dim bounds + Multi-Layer Perceptron (MLP) Classifier converting the fused 518-dim vector into prediction capabilities.
+
+**4. System Architecture & Evidence Fusion (3 Slides) *[Requested Priority]* **
+*   **Slide 8: System Architecture Block Diagram.** (Corresponding to the diagram reviewed previously). Re-iterating the flow from SMILES + DB queries to Risk Index.
+*   **Slide 9: Adaptive Evidence Fusion Layer.** Detail how the final prediction is weighted between Rule Score (DrugBank), ML Score, and TWOSIDES signal, providing a safety net if one source is missing.
+*   **Slide 10: Rule-Based Explainer.** Showing how system translates structural and statistical outputs into natural-language mechanism explanations (e.g., CYP overlap) without needing an LLM.
+
+**5. Results & Interfaces (2 Slides)**
+*   **Slide 11: Validation Results.** Showcasing the 0.6329 AUC on the strictly unseen cold-start cohort.
+*   **Slide 12: Interfaces & Tooling.** Streamlit Web UI, FastAPI, CLI capabilities. 
+
+**6. Conclusion & Future Work (1 Slide)**
+*   **Slide 13: Summary.** Hybrid, explainable, and generalizing systems are the future of computational pharmacology.
+
+## User Review Required
+Please review the slide structure above. Let me know if you want to shift the focus, add specific visuals (e.g. diagrams, screenshots of the Streamlit UI, confusion matrices), or adjust the technical depth for your target audience.
