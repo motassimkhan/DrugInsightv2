@@ -130,6 +130,7 @@ button[kind="primary"]:hover {
 .result-major   { background: rgba(224,92,92,0.08);  border-color: rgba(224,92,92,0.3); }
 .result-moderate{ background: rgba(224,136,58,0.08); border-color: rgba(224,136,58,0.3); }
 .result-minor   { background: rgba(58,173,110,0.08); border-color: rgba(58,173,110,0.3); }
+.result-uncertain{ background: rgba(138,160,179,0.08); border-color: rgba(138,160,179,0.3); }
 .result-none    { background: rgba(58,173,110,0.06); border-color: rgba(58,173,110,0.2); }
 
 .sev-badge {
@@ -145,6 +146,7 @@ button[kind="primary"]:hover {
 .badge-major    { background: rgba(224,92,92,0.2);  color: #e05c5c; }
 .badge-moderate { background: rgba(224,136,58,0.2); color: #e0883a; }
 .badge-minor    { background: rgba(58,173,110,0.2); color: #3aad6e; }
+.badge-uncertain{ background: rgba(138,160,179,0.2); color: #8aa0b3; }
 .badge-none     { background: rgba(58,173,110,0.15);color: #3aad6e; }
 
 .result-title {
@@ -179,8 +181,9 @@ button[kind="primary"]:hover {
 }
 .metric-lbl {
     font-family: var(--mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    line-height: 1.35;
     text-transform: uppercase;
     color: var(--muted);
 }
@@ -353,7 +356,7 @@ def load_predictor():
 
 
 def risk_color(severity):
-    return {'Major': '#e05c5c', 'Moderate': '#e0883a', 'Minor': '#3aad6e'}.get(severity, '#3aad6e')
+    return {'Major': '#e05c5c', 'Moderate': '#e0883a', 'Minor': '#3aad6e', 'Uncertain': '#8aa0b3'}.get(severity, '#3aad6e')
 
 
 def conf_class(val):
@@ -462,7 +465,7 @@ def main():
 
     badge_map = {
         'major': 'badge-major', 'moderate': 'badge-moderate',
-        'minor': 'badge-minor', 'none': 'badge-none'
+        'minor': 'badge-minor', 'uncertain': 'badge-uncertain', 'none': 'badge-none'
     }
     badge_text = sev if found else 'No Interaction'
     title_text = (

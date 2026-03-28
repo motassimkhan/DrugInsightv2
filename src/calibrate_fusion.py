@@ -80,28 +80,91 @@ def main():
         interactions_path = os.path.join(DATA_DIR, 'drugbank_interactions_enriched.csv.gz')
     
     interactions = pd.read_csv(interactions_path, low_memory=False)
-    interactions = interactions[
-        (interactions['label'] == 1) &
-        (interactions['direct_drugbank_hit'] == 1) &
-        (interactions['drug_1_id'].isin(predictor.smiles_dict)) &
-        (interactions['drug_2_id'].isin(predictor.smiles_dict))
-    ].copy()
+
+    # Tier-2 calibration set:
+    # - positive interaction labels
+    # - no direct DrugBank hit (exclude tier-1 pairs)
+    # - at least one structured evidence channel (enzyme/target/transporter/carrier/pathway/CYP)
+    def col_gt_zero(df, column):
+        if column not in df.columns:
+            return pd.Series(False, index=df.index)
+        return pd.to_numeric(df[column], errors='coerce').fillna(0) > 0
+
+    structured_evidence_mask = (
+        col_gt_zero(interactions, 'shared_enzyme_count') |
+        col_gt_zero(interactions, 'shared_target_count') |
+        col_gt_zero(interactions, 'shared_transporter_count') |
+        col_gt_zero(interactions, 'shared_carrier_count') |
+        col_gt_zero(interactions, 'shared_pathway_count') |
+        col_gt_zero(interactions, 'shared_major_cyp_count') |
+        col_gt_zero(interactions, 'cyp3a4_shared') |
+        col_gt_zero(interactions, 'cyp2d6_shared') |
+        col_gt_zero(interactions, 'cyp2c9_shared')
+    )
+
+    label_pos = pd.to_numeric(interactions['label'], errors='coerce').fillna(0) == 1
+    if 'direct_drugbank_hit' in interactions.columns:
+        direct_hit = pd.to_numeric(interactions['direct_drugbank_hit'], errors='coerce').fillna(0) > 0
+    else:
+        direct_hit = pd.Series(False, index=interactions.index)
+    has_smiles = (
+        interactions['drug_1_id'].isin(predictor.smiles_dict) &
+        interactions['drug_2_id'].isin(predictor.smiles_dict)
+    )
+
+    # Primary: true tier-2-like positives (no direct hit + structured evidence).
+    tier2_mask = label_pos & (~direct_hit) & structured_evidence_mask & has_smiles
+    interactions_tier2 = interactions[tier2_mask].copy()
+
+    # Fallbacks to avoid empty calibration sets in sparse/preprocessed variants.
+    if len(interactions_tier2) > 0:
+        interactions = interactions_tier2
+        calibration_cohort = "tier2_structured_no_direct"
+    else:
+        relaxed_structured = interactions[label_pos & structured_evidence_mask & has_smiles].copy()
+        if len(relaxed_structured) > 0:
+            interactions = relaxed_structured
+            calibration_cohort = "structured_positive_relaxed_direct_filter"
+        else:
+            broad_positive = interactions[label_pos & has_smiles].copy()
+            if len(broad_positive) == 0:
+                raise ValueError(
+                    "No calibratable positive pairs found after SMILES filtering. "
+                    "Check processed data columns and smiles coverage."
+                )
+            interactions = broad_positive
+            calibration_cohort = "positive_with_smiles_fallback"
+
+    print(f"Calibration cohort: {calibration_cohort} (n={len(interactions)})")
     
     all_drugs = sorted(set(interactions['drug_1_id']) | set(interactions['drug_2_id']))
-    _, val_drugs = train_test_split(all_drugs, test_size=0.2, random_state=42)
-    val_drugs = set(val_drugs)
+    if len(all_drugs) < 2:
+        raise ValueError(
+            f"Not enough unique drugs for calibration split (found {len(all_drugs)}). "
+            "Need at least 2 unique drugs."
+        )
+    if len(all_drugs) < 5:
+        val_drugs = set(all_drugs)
+        print(f"Small cohort detected ({len(all_drugs)} unique drugs): using all as validation.")
+    else:
+        _, val_drugs = train_test_split(all_drugs, test_size=0.2, random_state=42)
+        val_drugs = set(val_drugs)
     
     val_pos = interactions[
         interactions['drug_1_id'].isin(val_drugs) &
         interactions['drug_2_id'].isin(val_drugs)
     ].copy()
+    if len(val_pos) == 0:
+        print("Validation split produced 0 positive pairs; falling back to all selected interactions.")
+        val_pos = interactions.copy()
+        val_drugs = set(val_pos['drug_1_id']) | set(val_pos['drug_2_id'])
     
     positive_pairs = {
         (row.drug_1_id, row.drug_2_id)
         for row in interactions.itertuples(index=False)
     }
     
-    print("Sampling validation negatives...")
+    print("Sampling validation negatives for tier-2 calibration...")
     val_neg = predictor.feature_extractor.sample_hard_negatives(
         val_drugs,
         positive_pairs,
@@ -111,6 +174,8 @@ def main():
         hard_fraction=0.7,
     )
     val_df = pd.concat([val_pos, val_neg], ignore_index=True)
+    if len(val_df) == 0:
+        raise ValueError("Calibration dataset is empty after negative sampling.")
     
     # Precompute graphs
     print("Caching graphs...")
@@ -125,6 +190,8 @@ def main():
     # Filter val_df to ensure both graphs exist
     val_df = val_df[val_df['drug_1_id'].isin(graph_cache) & val_df['drug_2_id'].isin(graph_cache)].copy().reset_index(drop=True)
     print(f"Total valid validation pairs for calibration: {len(val_df)}")
+    if len(val_df) == 0:
+        raise ValueError("No valid validation pairs remain after graph filtering.")
     
     dataset = DDIDataset(val_df, graph_cache, feature_metadata)
     loader = DataLoader(dataset, batch_size=256, shuffle=False, num_workers=0, collate_fn=collate_fn)
@@ -147,6 +214,9 @@ def main():
             y_prob.extend(probs.cpu().numpy().tolist())
             if step % 20 == 0:
                 print(f"Batch {step}/{len(loader)}")
+
+    if len(y_prob) == 0:
+        raise ValueError("Model inference produced 0 predictions for calibration.")
 
     print("Computing vectorized heuristic scores...")
     df = val_df.copy()

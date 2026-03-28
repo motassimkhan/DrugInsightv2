@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 
 import pandas as pd
 import torch
@@ -75,9 +76,10 @@ MODEL_PATH = resolve_model_path()
 
 
 class DDIPredictor:
-    def __init__(self, model_path=MODEL_PATH, data_dir=DATA_DIR):
+    def __init__(self, model_path=MODEL_PATH, data_dir=DATA_DIR, context_aware_severity=True):
         self.data_dir = data_dir
         self.model_path = resolve_model_path(model_path)
+        self.context_aware_severity = bool(context_aware_severity)
         self.feature_metadata = load_feature_metadata(os.path.join(data_dir, 'feature_metadata.json'))
 
         self.feature_extractor = FeatureExtractor(data_dir)
@@ -232,6 +234,45 @@ class DDIPredictor:
             return 'Moderate', 1
         return 'Minor', 0
 
+    def _evidence_strength(self, context):
+        score = 0.0
+        score += min(0.30, 0.08 * float(context.get('shared_enzyme_count', 0) or 0))
+        score += min(0.20, 0.06 * float(context.get('shared_target_count', 0) or 0))
+        score += min(0.08, 0.03 * float(context.get('shared_transporter_count', 0) or 0))
+        score += min(0.06, 0.02 * float(context.get('shared_carrier_count', 0) or 0))
+        score += min(0.06, 0.02 * float(context.get('shared_pathway_count', 0) or 0))
+        score += min(0.15, 0.05 * float(context.get('shared_major_cyp_count', 0) or 0))
+
+        if bool(context.get('direct_drugbank_hit')):
+            score += 0.25
+        if bool(context.get('twosides_found')):
+            score += min(0.15, 0.04 * float(context.get('twosides_max_prr', 0.0) or 0.0))
+
+        return round(min(score, 1.0), 4)
+
+    def _apply_context_aware_severity(self, context, probability, risk_index, default_source, uncertainty):
+        severity, severity_idx = self._severity_from_risk(risk_index)
+        if not self.context_aware_severity:
+            return severity, severity_idx, default_source, ''
+
+        tier = context.get('evidence_tier', '')
+        overall_conf = str(uncertainty.get('overall_confidence', 'low')).lower()
+        evidence_strength = float(uncertainty.get('evidence_strength_score', 0.0) or 0.0)
+
+        # Tier-3 ML-only positives are uncertain by policy.
+        if tier == 'tier_3_structure_only' and float(probability) >= 0.5:
+            return 'Uncertain', -1, 'tier3_ml_only_uncertain', 'ML-only positive without corroborating structure evidence'
+
+        # High-risk predictions should require enough supporting evidence quality.
+        if risk_index >= 70 and overall_conf == 'low' and evidence_strength < 0.40:
+            return 'Uncertain', -1, 'context_aware_low_certainty_high_risk', 'High risk score but low corroborating evidence'
+
+        # Moderate risk with very weak support is also uncertain.
+        if 40 <= risk_index < 70 and overall_conf == 'low' and evidence_strength < 0.20:
+            return 'Uncertain', -1, 'context_aware_low_certainty_moderate_risk', 'Moderate risk score with weak evidence support'
+
+        return severity, severity_idx, default_source, ''
+
     def _fusion_weight_dict(self):
         """Return fusion weights in a UI-friendly dict shape."""
         if not FUSION_WEIGHTS:
@@ -326,23 +367,7 @@ class DDIPredictor:
             ml_score_display = 0.0
 
         risk_index = int(round(blended_prob * 100))
-        severity, severity_idx = self._severity_from_risk(risk_index)
-
-        info_a = context.get('drug_a_info', {})
-        info_b = context.get('drug_b_info', {})
-        tox_a = info_a.get('toxicity', '').lower()
-        tox_b = info_b.get('toxicity', '').lower()
-        high_risk_keywords = ['narrow therapeutic', 'fatal', 'life-threatening', 'severe toxicity']
-        is_high_risk = any(k in tox_a for k in high_risk_keywords) or any(k in tox_b for k in high_risk_keywords)
-
         severity_source = 'drugbank_blended' if ml_prob is not None else 'drugbank_rule_only'
-        # Safety-net NTI override: only fires when there is real structural evidence
-        # (rule_score >= 0.15) AND the blended risk is still below Major threshold.
-        if is_high_risk and rule_score >= 0.15 and risk_index < 70:
-            severity = 'Major'
-            severity_idx = 2
-            risk_index = max(risk_index, 75)
-            severity_source = 'safety_net_nti_override'
 
         component_scores = {
             'rule_score': rule_score,
@@ -357,9 +382,19 @@ class DDIPredictor:
             'ml_confidence': ml_conf,
             'twosides_confidence': 'not_used',
             'overall_confidence': 'high' if ml_prob is not None else 'moderate',
+            'evidence_strength_score': self._evidence_strength(context),
             'confounding_flag': float(context.get('twosides_max_prr', 0.0) or 0.0) > 100,
             'tier1_policy': 'tier1_drugbank_blended' if ml_prob is not None else 'tier1_drugbank_only',
         }
+        severity, severity_idx, severity_source, policy_notes = self._apply_context_aware_severity(
+            context=context,
+            probability=blended_prob,
+            risk_index=risk_index,
+            default_source=severity_source,
+            uncertainty=uncertainty,
+        )
+        if policy_notes:
+            uncertainty['policy_notes'] = policy_notes
 
         return self._build_result(
             context=context,
@@ -429,8 +464,18 @@ class DDIPredictor:
             'ml_confidence': ml_confidence,
             'twosides_confidence': twosides_confidence,
             'overall_confidence': overall_confidence,
+            'evidence_strength_score': self._evidence_strength(context),
             'confounding_flag': float(context.get('twosides_max_prr', 0.0) or 0.0) > 100,
         }
+        severity, severity_idx, severity_source, policy_notes = self._apply_context_aware_severity(
+            context=context,
+            probability=fused_prob,
+            risk_index=risk_index,
+            default_source='derived_from_fusion',
+            uncertainty=uncertainty,
+        )
+        if policy_notes:
+            uncertainty['policy_notes'] = policy_notes
 
         return self._build_result(
             context=context,
@@ -440,14 +485,22 @@ class DDIPredictor:
             severity=severity,
             severity_idx=severity_idx,
             decision_source='fused',
-            severity_source='derived_from_fusion',
+            severity_source=severity_source,
             component_scores=component_scores,
             uncertainty=uncertainty,
         )
 
     def _ml_only_result(self, context, ml_prob):
         risk_index = int(round(float(ml_prob) * 100))
-        severity, severity_idx = self._severity_from_risk(risk_index)
+        # Tier-3 has no corroborating structured evidence (DrugBank/TWOSIDES),
+        # so positive ML-only signals are surfaced as Uncertain severity.
+        interaction = float(ml_prob) >= 0.5
+        if interaction:
+            severity, severity_idx = 'Uncertain', -1
+            severity_source = 'tier3_ml_only_uncertain'
+        else:
+            severity, severity_idx = self._severity_from_risk(risk_index)
+            severity_source = 'derived_from_ml'
         component_scores = {
             'rule_score': 0.0,
             'ml_score': round(float(ml_prob), 4),
@@ -459,17 +512,28 @@ class DDIPredictor:
             'ml_confidence': self._ml_confidence(ml_prob),
             'twosides_confidence': 'no_signal',
             'overall_confidence': 'low',
+            'evidence_strength_score': self._evidence_strength(context),
             'confounding_flag': False,
         }
+        severity, severity_idx, severity_source_ctx, policy_notes = self._apply_context_aware_severity(
+            context=context,
+            probability=float(ml_prob),
+            risk_index=risk_index,
+            default_source=severity_source,
+            uncertainty=uncertainty,
+        )
+        severity_source = severity_source_ctx
+        if policy_notes:
+            uncertainty['policy_notes'] = policy_notes
         return self._build_result(
             context=context,
             probability=float(ml_prob),
-            interaction=float(ml_prob) >= 0.5,
+            interaction=interaction,
             risk_index=risk_index,
             severity=severity,
             severity_idx=severity_idx,
             decision_source='ml_only',
-            severity_source='derived_from_ml',
+            severity_source=severity_source,
             component_scores=component_scores,
             uncertainty=uncertainty,
         )
@@ -506,10 +570,60 @@ class DDIPredictor:
         return self._ml_only_result(context, ml_prob)
 
     def drug_names_with_smiles(self):
-        return sorted(
-            name for drugbank_id, name in self.feature_extractor.id_to_name.items()
-            if drugbank_id in self.smiles_dict
+        catalog = self.feature_extractor.drug_catalog
+
+        approved_ids = None
+        if 'groups' in catalog.columns:
+            groups = catalog['groups'].fillna('').astype(str).str.lower()
+            approved_ids = set(catalog.loc[groups.str.contains(r'\bapproved\b', regex=True), 'drugbank_id'])
+
+        # Utility/formulation clues in indication text (e.g., diluents/hydration vehicles).
+        indication_by_id = {}
+        if 'indication' in catalog.columns:
+            for row in catalog[['drugbank_id', 'indication']].itertuples(index=False):
+                indication_by_id[row.drugbank_id] = str(row.indication or '').lower()
+
+        utility_indication_pattern = (
+            r'dilut|dissolv|irrigat|delivery system|'
+            r'source of electrolytes|source of water|for hydration'
         )
+        utility_indication_re = re.compile(utility_indication_pattern, re.IGNORECASE)
+
+        # Precompute direct DrugBank hit counts from SQLite to avoid excluding clinically relevant drugs.
+        direct_hit_counts = {}
+        conn = self.feature_extractor._db_conn
+        rows = conn.execute(
+            """
+            WITH all_hits AS (
+                SELECT drug_1_id AS id FROM known_interactions WHERE direct_drugbank_hit = 1
+                UNION ALL
+                SELECT drug_2_id AS id FROM known_interactions WHERE direct_drugbank_hit = 1
+            )
+            SELECT id, COUNT(*) AS hit_count
+            FROM all_hits
+            GROUP BY id
+            """
+        ).fetchall()
+        for row in rows:
+            direct_hit_counts[row['id']] = int(row['hit_count'] or 0)
+
+        names = []
+        for drugbank_id, name in self.feature_extractor.id_to_name.items():
+            if drugbank_id not in self.smiles_dict:
+                continue
+            if approved_ids is not None and drugbank_id not in approved_ids:
+                continue
+
+            indication = indication_by_id.get(drugbank_id, '')
+            is_utility_indication = bool(utility_indication_re.search(indication))
+            hit_count = direct_hit_counts.get(drugbank_id, 0)
+            # Exclude only when both clues agree: utility-like indication + weak DDI coverage.
+            if is_utility_indication and hit_count <= 25:
+                continue
+
+            names.append(name)
+
+        return sorted(set(names))
 
 
 def main():

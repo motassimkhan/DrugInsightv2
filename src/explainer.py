@@ -241,20 +241,13 @@ class Explainer:
             if mechanism_parts:
                 mechanism_text  = ' '.join(mechanism_parts)
             else:
-                # Priority 3: Drug Catalog textual fallback
-                a_info = context.get('drug_a_info', {})
-                b_info = context.get('drug_b_info', {})
-                a_pd = a_info.get('pharmacodynamics', '')
-                b_pd = b_info.get('pharmacodynamics', '')
-                
-                catalog_notes = []
-                if a_pd: catalog_notes.append(f"{name_a} pharmacodynamics: {a_pd}")
-                if b_pd: catalog_notes.append(f"{name_b} pharmacodynamics: {b_pd}")
-                
-                if catalog_notes:
-                    mechanism_text = "The specific mechanism of interaction is unknown. " + " ".join(catalog_notes)
-                else:
-                    mechanism_text = "The interaction mechanism is not fully characterised from available structural and pharmacological data, but molecular analysis suggests a potential interaction."
+                # Priority 3: concise interaction-focused fallback for low-evidence (tier-3-like) cases
+                mechanism_text = (
+                    f"No specific interaction mechanism is confirmed for {name_a} + {name_b} "
+                    "from DrugBank structure links or TWOSIDES pharmacovigilance signals. "
+                    "This prediction is based on ML molecular-pattern inference only and should be "
+                    "treated as a hypothesis pending external clinical verification."
+                )
                     
         # Fix 2 — append severity-linked clinical consequence
         consequence = {
