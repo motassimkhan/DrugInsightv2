@@ -1,40 +1,79 @@
 @startuml
-left to right direction
+skinparam nodesep 70
+skinparam ranksep 70
 skinparam class {
-    BackgroundColor LightCyan
+    BackgroundColor #FCEFB4
     BorderColor Black
     ArrowColor Black
+    AttributeIconSize 0
 }
 
-class DrugInsightPredictor {
-  +predict(drugA: str, drugB: str): dict
-  -compute_fusion(ml_prob, rule_score, prr_signal)
+class User {
+  - user_id : int
+  - name : string
+  - email : string
+  - password : string
+  + register()
+  + login()
+  + submitQuery()
+  + viewResults()
 }
 
-class FeatureExtractor {
-  +resolve_drug(name: str)
-  +extract_pair_features(id_a, id_b)
-  +build_graphs(smiles)
+class DrugQuery {
+  - query_id : int
+  - drug_a_name : string
+  - drug_b_name : string
+  - query_date : date
+  - query_format : string
+  + preprocess()
+  + validateCanonical()
 }
 
-class GNNEncoder {
-  +AttentiveFP(graph_batch)
-  +forward(): tensor_256D
+class DrugInsightModel {
+  - model_id : int
+  - version : string
+  - accuracy : float
+  - status : string
+  + loadModel()
+  + train()
+  + engineerFeatures()
+  + generatePrediction()
+  + evaluateModel()
 }
 
-class DDIClassifier {
-  +MLP_Layers(hidden=512, 256, 128)
-  +forward(embeddings, extra_feats)
+class Admin {
+  + manageDataset()
+  + trainModel()
+  + updateModel()
+  + monitorSystem()
 }
 
-class RuleExplainer {
-  +derive_mechanism(feature_dict)
-  +generate_explanation(): string
+class FastAPIApp {
+  - app_name : string
+  - debug_mode : boolean
+  + initServer()
+  + handlePredict()
 }
 
-DrugInsightPredictor "1" *--> "1" FeatureExtractor : Coordinates Data
-DrugInsightPredictor "1" *--> "1" RuleExplainer : Coordinates Text
-DrugInsightPredictor "1" *--> "1" GNNEncoder : Runs Network
-DrugInsightPredictor "1" *--> "1" DDIClassifier : Runs Network
+class Database {
+  - connection_id : int
+  - host : string
+  - database_name : string
+  + connect()
+  + storeResult()
+  + fetchFeatures()
+  + closeConnection()
+}
+
+User "1 " -right-> " 1" DrugQuery : " uploads"
+DrugQuery "1 " -right-> " 1" DrugInsightModel : " processed by"
+
+Admin "1 " -right-* " 1" FastAPIApp : " controls"
+FastAPIApp "1 " -right-o " 1" Database : " controls"
+
+User -[hidden]down-> Admin
+DrugQuery -[hidden]down-> FastAPIApp
+
+DrugInsightModel "0..1 " -down-> " 1" Database : " generates"
 
 @enduml

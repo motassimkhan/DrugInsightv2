@@ -1,0 +1,49 @@
+@startuml
+' DFD Level 1 - Main System Processes
+top to bottom direction
+
+skinparam usecase {
+    BackgroundColor LightCyan
+    BorderColor Black
+    FontSize 12
+}
+skinparam actor {
+    BackgroundColor White
+    BorderColor Black
+}
+skinparam database {
+    BackgroundColor LightGreen
+    BorderColor Black
+    FontSize 11
+}
+skinparam ArrowColor Black
+
+actor "Clinician /\nResearcher" as User
+database "DS1: DrugBank\nSQLite" as DS1
+database "DS2: TWOSIDES\nSQLite" as DS2
+database "DS3: Trained\nModel Weights" as DS3
+
+usecase "P1\nQuery\nResolution" as P1
+usecase "P2\nFeature\nExtraction" as P2
+usecase "P3\nML\nInference" as P3
+usecase "P4\nEvidence\nFusion" as P4
+usecase "P5\nExplainer\n& Output" as P5
+
+' User flows
+User --> P1 : "Drug Pair Names"
+P5 --> User : "Risk Index &\nSeverity Tier"
+
+' Process flows
+P1 --> P2 : "Canonical Drug IDs"
+P2 --> P3 : "SMILES Strings &\n518-D Feature Vector"
+P3 --> P4 : "ML Probability Logit"
+P2 --> P4 : "Rule Score &\nPRR Signal"
+P4 --> P5 : "Fused Risk Score"
+
+' Data store reads
+P1 --> DS1 : "Lookup Canonical IDs"
+P2 --> DS1 : "Fetch SMILES,\nEnzymes, Targets"
+P2 --> DS2 : "Fetch PRR Signal"
+DS3 --> P3 : "Pre-trained\nModel Weights"
+
+@enduml

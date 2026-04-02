@@ -11,11 +11,11 @@ skinparam usecase {
     BorderColor Black
 }
 
-actor "User" as U
+actor "Clinicial/Researcher" as U
 
 rectangle "DrugInsight System" {
-  usecase "Input Canonical\nDrug Query" as UC1
-  usecase "Predict Risk" as UC2
+  usecase "Inputs Canonical\nDrug Query" as UC1
+  usecase "Predicts Risk" as UC2
   usecase "View Explainable\nMechanism" as UC3
   usecase "View Evidence\nScores (DB, PRR, ML)" as UC4
 }

@@ -1,0 +1,47 @@
+@startuml
+' DFD Level 2 - Expansion of P3: ML Inference
+top to bottom direction
+
+skinparam usecase {
+    BackgroundColor LightCyan
+    BorderColor Black
+    FontSize 12
+}
+skinparam rectangle {
+    BackgroundColor White
+    BorderColor Black
+    roundCorner 6
+}
+skinparam database {
+    BackgroundColor LightGreen
+    BorderColor Black
+    FontSize 11
+}
+skinparam ArrowColor Black
+
+rectangle "From P2\n(Feature Extractor)" as P2_IN
+rectangle "To P4\n(Evidence Fusion)" as P4_OUT
+database "DS3: Trained\nModel Weights" as DS3
+
+usecase "P3.1\nParse SMILES\n(RDKit)" as P31
+usecase "P3.2\nBuild PyG\nMolecular Graph" as P32
+usecase "P3.3\nAttentiveFP GNN\n(4 Layers)" as P33
+usecase "P3.4\nConcatenate\nEmbeddings (518-D)" as P34
+usecase "P3.5\n3-Layer MLP\n(512→256→128)" as P35
+usecase "P3.6\nOutput\nProbability Logit" as P36
+
+' Input flows
+P2_IN --> P31 : "SMILES String\n(Drug A & Drug B)"
+P2_IN --> P34 : "6-D Engineered\nPair Features"
+
+' Internal process chain
+P31 --> P32 : "Atom & Bond\nLists"
+P32 --> P33 : "PyG Graph Object\n(Node: 8-feat, Edge: 6-feat)"
+DS3 --> P33 : "GNN Weights"
+P33 --> P34 : "256-D Embedding\nper Drug"
+DS3 --> P35 : "MLP Weights"
+P34 --> P35 : "518-D\nConcatenated Vector"
+P35 --> P36 : "128-D\nHidden State"
+P36 --> P4_OUT : "Interaction\nProbability Logit"
+
+@enduml

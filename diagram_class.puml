@@ -1,0 +1,93 @@
+@startuml
+skinparam handwritten false
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 80
+
+package "Predictive Service" {
+  class DDIPredictor {
+    - data_dir : str
+    - model_path : str
+    - feature_metadata : dict
+    - feature_extractor : FeatureExtractor
+    - smiles_dict : dict
+    - explainer : Explainer
+    - gnn : GNNEncoder
+    - classifier : DDIClassifier
+    + predict(drug_a: str, drug_b: str) : dict
+    - _run_model(context: dict) : float
+    - _get_rule_score(context: dict) : float
+    - _twosides_score(context: dict) : float
+    - _compute_fusion(context: dict, ml_prob: float) : dict
+    - _direct_hit_result(context: dict, ml_prob: float) : dict
+    - _ml_only_result(context: dict, ml_prob: float) : dict
+  }
+}
+
+package "Data & Feature Engineering" {
+  class FeatureExtractor {
+    - data_dir : str
+    - feature_metadata : dict
+    - id_to_name : dict
+    - smiles_dict : dict
+    - drug_info : dict
+    - _db_conn : sqlite3.Connection
+    + extract(drug_a: str, drug_b: str) : dict
+    + resolve_drug(drug_input: str) : tuple
+    + get_known_interaction(id_a: str, id_b: str) : dict
+    + get_twosides_signal(id_a: str, id_b: str) : dict
+    + pair_features(id_a: str, id_b: str) : dict
+    + determine_evidence_tier(features: dict) : str
+    + sample_hard_negatives(drug_pool, positive_pairs, n) : DataFrame
+  }
+
+  class DDIDataset {
+    - graph_cache : dict
+    - drug_1_ids : list
+    - drug_2_ids : list
+    - labels : Tensor
+    - extras : Tensor
+    + __len__() : int
+    + __getitem__(idx: int) : tuple
+  }
+}
+
+package "Neural Networks" {
+  class GNNEncoder {
+    - attentive_fp : AttentiveFP
+    + forward(data: Data) : Tensor
+  }
+
+  class DDIClassifier {
+    - trunk : Sequential
+    - prob_head : Linear
+    - severity_head : Linear
+    - extra_dim : int
+    + forward(embed_a: Tensor, embed_b: Tensor, extra: Tensor) : tuple
+  }
+}
+
+package "Explainability" {
+  class Explainer {
+    - CYP_INHIBITORS : dict
+    - CYP_INDUCERS : dict
+    + explain(context: dict, prediction: dict) : dict
+    - _enzyme_mechanism(context: dict) : str
+    - _target_mechanism(context: dict) : str
+    - _pharmacovigilance_note(context: dict) : str
+    - _clinical_recommendation(severity_label: str, context: dict) : str
+  }
+}
+
+DDIPredictor --> FeatureExtractor : "Uses"
+DDIPredictor --> GNNEncoder : "Uses"
+DDIPredictor --> DDIClassifier : "Uses"
+DDIPredictor --> Explainer : "Uses"
+
+"Data & Feature Engineering" -[hidden]right-> "Neural Networks"
+"Explainability" -[hidden]up-> "Data & Feature Engineering"
+"Explainability" -[hidden]up-> "Neural Networks"
+
+@enduml

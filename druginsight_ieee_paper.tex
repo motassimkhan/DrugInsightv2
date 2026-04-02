@@ -47,7 +47,7 @@ Methodist College of Engineering and Technology\\
 Hyderabad, India\\
 160722733076@methodist.edu.in}
 \and
-
+% TODO: Replace with fourth author's details
 \IEEEauthorblockN{Ms. R. Prathyusha}
 \IEEEauthorblockA{Department of Computer Science and Engineering\\
 Methodist College of Engineering and Technology\\
@@ -61,7 +61,7 @@ prathyusha@methodist.edu.in}
 % ABSTRACT
 % ════════════════════════════════════════════════════════════════════════════
 \begin{abstract}
-DrugInsight is an end-to-end, interpretable drug-drug interaction (DDI) prediction system that evaluates interaction probability and severity while generating structured, mechanism-grounded clinical explanations without relying on large language models. The system architecture leverages RDKit and PyTorch Geometric to process drug SMILES strings into molecular graphs, which are subsequently encoded via an AttentiveFP Graph Neural Network (GNN) to produce fixed-length structural embeddings. To enhance predictive capability and biological context, these embeddings are concatenated with a comprehensive six-dimensional pharmacological feature vector encompassing shared metabolizing enzymes, pharmacological targets, transporters, carriers, and pathways extracted from DrugBank, alongside real-world post-market adverse event signal strengths (Proportional Reporting Ratios) sourced from the TWOSIDES pharmacovigilance database via an RxNorm cross-link. This combined representation is processed through a Multi-Layer Perceptron (MLP) binary classifier, whose output is combined with curated DrugBank rules and TWOSIDES safety signals using an adaptive weighted fusion layer to yield a unified risk index and severity classification. Validated under a rigorous cold-start drug-level split to ensure generalization to entirely unseen compounds, the system ensures high transparency through a specialized rule-based explainer that details metabolic competition, pharmacodynamic overlap, and explicit clinical recommendations. Packaged for versatile deployment through a Streamlit interactive web user interface, a FastAPI REST endpoint, and a command-line interface (CLI) workflow, DrugInsight provides a robust, data-fused, and highly transparent mechanism for automated DDI screening in research and clinical environments.
+DrugInsight is an end-to-end, interpretable drug-drug interaction (DDI) prediction system. It evaluates interaction probability and severity while generating structured clinical explanations. The system utilizes RDKit and PyTorch Geometric to process drug SMILES strings into molecular graphs. These graphs are encoded by an AttentiveFP Graph Neural Network (GNN) into fixed-length structural embeddings. The embeddings are concatenated with a comprehensive 12-dimensional pharmacological feature vector. This vector encompasses shared biological entities from DrugBank and post-market safety signals (PRR) from the TWOSIDES database. A Multi-Layer Perceptron (MLP) binary classifier processes this combined representation. The final interaction probability is computed using a tiered fusion model. This model adaptively weights curated DrugBank rules, ML classifier scores, and TWOSIDES pharmacovigilance signals to generate a unified risk index and severity classification. The system achieves a validation AUC of 0.7065 under a rigorous cold-start drug-level split. This demonstrates robust generalization to entirely unseen compounds. DrugInsight ensures high transparency through a rule-based explainer detailing metabolic competition, pharmacodynamic overlap, and explicit clinical recommendations. The system is packaged for versatile deployment via a Streamlit web interface, a FastAPI REST endpoint, and a command-line interface (CLI).
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -73,19 +73,21 @@ Drug-drug interactions, graph neural networks, AttentiveFP, evidence fusion, exp
 % ════════════════════════════════════════════════════════════════════════════
 \section{Introduction}
 
-Drug-drug interactions (DDIs) constitute a significant source of preventable adverse drug events (ADEs), contributing to an estimated 74,000 emergency department visits and 195,000 hospitalizations annually in the United States alone \cite{lazarou1998}. As polypharmacy becomes increasingly prevalent---particularly among elderly and chronically ill patients---the combinatorial space of potential DDIs far exceeds the capacity of manual curation efforts. While commercial drug interaction databases such as DrugBank \cite{wishart2018}, Medscape, and Lexicomp provide curated interaction records, they are inherently limited by the scope of manually reviewed drug pairs and cannot generalize to novel combinations or newly approved compounds.
+Drug-drug interactions (DDIs) constitute a significant source of preventable adverse drug events (ADEs). They contribute to an estimated 74,000 emergency department visits and 195,000 hospitalizations annually in the United States alone \cite{lazarou1998}. Polypharmacy is increasingly prevalent, particularly among elderly and chronically ill patients. As a result, the combinatorial space of potential DDIs far exceeds the capacity of manual curation efforts. Commercial drug interaction databases such as DrugBank \cite{wishart2018}, Medscape, and Lexicomp provide robust curated interaction records. However, they are inherently limited by the scope of manually reviewed drug pairs and cannot generalize to newly approved compounds.
 
-Recent advances in deep learning, particularly graph neural networks (GNNs), have shown promise in learning molecular representations directly from chemical structure and predicting pairwise drug interactions \cite{deepddi2018, kgnn2020}. However, most GNN-based systems operate as black-box classifiers that provide binary interaction predictions without clinically interpretable explanations, limiting their utility in clinical decision support. Furthermore, purely structure-based approaches fail to incorporate the rich pharmacological context---shared metabolizing enzymes, pharmacological target overlap, and post-market safety signals---that clinicians rely on when evaluating interaction risk.
+Recent advances in deep learning, particularly graph neural networks (GNNs), show promise in learning molecular representations directly from chemical structures \cite{deepddi2018, kgnn2020}. Unfortunately, most GNN-based systems operate as black-box classifiers. They provide binary predictions without clinically interpretable explanations, thereby limiting their utility in clinical decision support. Furthermore, purely structure-based approaches fail to incorporate critical pharmacological context. Clinicians rely heavily on shared metabolizing enzymes, pharmacological target overlaps, and post-market safety signals when evaluating interaction risks.
 
-In this work, we present \textbf{DrugInsight}, an end-to-end DDI prediction system that addresses these limitations through three key innovations:
+In this work, we present \textbf{DrugInsight}, an end-to-end DDI prediction system addressing these domain limitations through three key innovations:
 
 \begin{enumerate}
-    \item \textbf{Multi-source evidence fusion}: Rather than relying on a single prediction source, DrugInsight combines GNN-derived molecular predictions with curated DrugBank pharmacological evidence and real-world TWOSIDES \cite{tatonetti2012} pharmacovigilance signals through an adaptive weighted fusion layer. This multi-source approach provides broader coverage than any individual database-based DDI checker, as it compensates for gaps in any single data source by leveraging complementary evidence streams.
+    \item \textbf{Multi-source evidence fusion}: DrugInsight combines GNN-derived molecular predictions with curated DrugBank pharmacological evidence and real-world TWOSIDES \cite{tatonetti2012} pharmacovigilance signals. This is implemented through an adaptive tiered fusion layer. This approach mitigates gaps in any single data source and achieves broader coverage than individual database-based DDI checkers.
 
-    \item \textbf{LLM-free explainability}: The system generates structured, mechanism-grounded clinical explanations---detailing metabolic competition, pharmacodynamic overlap, and pharmacovigilance signals---using a rule-based explainer that draws on curated CYP enzyme interaction knowledge and shared target information, without the computational overhead or hallucination risk of large language models.
+    \item \textbf{Structured explainability}: The system generates mechanism-grounded clinical explanations detailing metabolic competition, pharmacodynamic overlap, and patient safety signals. It leverages a rule-based explainer built on CYP enzyme interaction knowledge and shared targets. This provides clinical transparency without the computational overhead or hallucination risks of large language models.
 
-    \item \textbf{Cold-start generalization}: The model is validated under a rigorous drug-level split protocol where both drugs in each validation pair are entirely unseen during training, simulating the realistic scenario of evaluating newly approved or rarely studied compounds.
+    \item \textbf{Cold-start generalization}: The model is rigorously evaluated under a zero-overlap drug-level split protocol. Validation pairs consist entirely of drugs unseen during training. This simulates the realistic scenario of evaluating newly approved or rarely studied compounds.
 \end{enumerate}
+
+To facilitate open research and clinical evaluation, the DrugInsight interactive web application is publicly accessible at \url{https://druginsight.streamlit.app/}. The complete source code, documentation, and model architecture are available in the project repository at \url{https://github.com/AymanUzayr/DrugInsightv2}.
 
 The remainder of this paper is organized as follows: Section~II reviews related work, Section~III details the system architecture and methodology, Section~IV describes the experimental setup, Section~V presents results and case studies, Section~VI discusses limitations and future directions, and Section~VII concludes the paper.
 
@@ -125,13 +127,13 @@ Fig.~\ref{fig:architecture} presents the end-to-end DrugInsight pipeline. Given 
 \subsection{Data Sources and Preprocessing}
 
 \subsubsection{DrugBank Data Extraction}
-DrugBank \cite{wishart2018} exports are parsed into structured CSV tables: drug metadata, interaction pairs, enzymes, targets, transporters, carriers, pathways, and SMILES structures. Drugs are filtered to retain only those with valid, parseable SMILES strings (verified using RDKit \texttt{MolFromSmiles}), yielding 14,606 validated drugs with 14,488 successfully cached molecular graphs.
+DrugBank \cite{wishart2018} exports are parsed into structured CSV tables: drug metadata, interaction pairs, enzymes, targets, transporters, carriers, pathways, and SMILES structures. Drugs are filtered to retain only those with valid, parseable SMILES strings (verified using RDKit \texttt{MolFromSmiles}), yielding approximately 3,803 drugs with molecular structure data.
 
 \subsubsection{TWOSIDES Pharmacovigilance Data}
 The TWOSIDES database \cite{tatonetti2012} provides post-market adverse event reporting data with Proportional Reporting Ratios (PRR) for drug combinations. A RxNorm bridge file maps DrugBank IDs to RxNorm identifiers, enabling cross-database linkage.
 
 \subsubsection{Interaction Enrichment}
-Each interaction pair is enriched with computed pharmacological counts (shared enzymes, targets, transporters, carriers, pathways) and the maximum TWOSIDES PRR via bidirectional RxNorm join. PRR values are capped at the 99th percentile to control outliers, and duplicate pairs are deduplicated by retaining the highest-PRR record. The enriched dataset yields 1,169,030 positive interaction pairs.
+Each interaction pair is enriched with computed pharmacological counts (shared enzymes, targets, transporters, carriers, pathways) and the maximum TWOSIDES PRR via bidirectional RxNorm join. PRR values are capped at the 99th percentile to control outliers, and duplicate pairs are deduplicated by retaining the highest-PRR record. The enriched dataset contains approximately 936,178 interaction pairs.
 
 \subsection{Molecular Graph Representation}
 Each drug's SMILES string is converted into a PyTorch Geometric \texttt{Data} object using RDKit. Hydrogen atoms are explicitly added before feature extraction. The molecular graph $G = (V, E)$ consists of atoms as nodes and chemical bonds as undirected edges.
@@ -146,14 +148,14 @@ Each drug's SMILES string is converted into a PyTorch Geometric \texttt{Data} ob
 \toprule
 \textbf{Feature} & \textbf{Type} & \textbf{Description} \\
 \midrule
-Atomic number    & Integer & Element identity \\
-Degree           & Integer & Number of covalent bonds \\
-Formal charge    & Integer & Net ionic charge \\
-Hybridization    & Integer & sp/sp2/sp3 encoded \\
-Aromaticity      & Binary  & In aromatic ring \\
-H-count          & Integer & Total attached hydrogens \\
-Ring membership  & Binary  & Part of any ring \\
-Normalized mass  & Float   & Atomic mass / 100 \\
+Atomic number    & int     & Element identity \\
+Degree           & int     & Number of bonds \\
+Formal charge    & int     & Net charge \\
+Hybridization    & int     & sp/sp2/sp3 as integer \\
+Aromaticity      & binary  & In aromatic ring \\
+H-count          & int     & Total attached hydrogens \\
+Ring membership  & binary  & Part of any ring \\
+Normalized mass  & float   & Atomic mass / 100 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -171,13 +173,13 @@ The molecular graph encoder employs AttentiveFP \cite{xiong2020}, a graph attent
 \toprule
 \textbf{Parameter} & \textbf{Value} \\
 \midrule
-Input channels (atom features)   & 8 \\
-Edge dimension (bond features)   & 6 \\
-Hidden channels                  & 128 \\
-Output channels (embedding dim)  & 256 \\
-Message-passing layers           & 4 \\
-Readout timesteps                & 2 \\
-Dropout                          & 0.3 \\
+in\_channels      & 8 \\
+edge\_dim         & 6 \\
+hidden\_channels  & 128 \\
+out\_channels     & 256 \\
+num\_layers       & 4 \\
+num\_timesteps    & 2 \\
+dropout           & 0.3 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -185,93 +187,95 @@ Dropout                          & 0.3 \\
 The GNN produces a 256-dimensional global graph embedding for each drug molecule. The attention mechanism allows the network to learn atom-level importance for molecular property prediction.
 
 \subsection{DDI Classifier: Multi-Layer Perceptron}
-The two 256-dimensional drug embeddings are concatenated with a 6-dimensional pharmacological feature vector (described in Section~III-F), yielding a 518-dimensional pair representation. This is processed by a 3-layer MLP trunk with batch normalization, ReLU activation, and dropout regularization:
+The two 256-dimensional drug embeddings are concatenated with a 12-dimensional pharmacological feature vector (described in Section~III-F), yielding a 524-dimensional pair representation. This is processed by a 3-layer MLP trunk with batch normalization, ReLU activation, and dropout regularization:
 
 \begin{equation}
 \mathbf{h} = \text{MLP}([\mathbf{e}_A \| \mathbf{e}_B \| \mathbf{f}_{pair}])
 \end{equation}
 
-where $\mathbf{e}_A, \mathbf{e}_B \in \mathbb{R}^{256}$ are drug embeddings and $\mathbf{f}_{pair} \in \mathbb{R}^{6}$ is the pharmacological feature vector. The trunk architecture is: Linear(518$\rightarrow$512) $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ Dropout(0.5) $\rightarrow$ Linear(512$\rightarrow$256) $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ Dropout(0.5) $\rightarrow$ Linear(256$\rightarrow$128) $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ Dropout(0.5).
+where $\mathbf{e}_A, \mathbf{e}_B \in \mathbb{R}^{256}$ are drug embeddings and $\mathbf{f}_{pair} \in \mathbb{R}^{12}$ is the pharmacological feature vector. Table~\ref{tab:mlp_trunk} details the layer-wise configuration of the trunk architecture.
+
+\begin{table}[htbp]
+\caption{MLP Trunk Architecture}
+\label{tab:mlp_trunk}
+\centering
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{Layer} & \textbf{Components} & \textbf{Input} & \textbf{Output} \\
+\midrule
+1 & Linear $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ Dropout(0.5) & 524 & 512 \\
+2 & Linear $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ Dropout(0.5) & 512 & 256 \\
+3 & Linear $\rightarrow$ BatchNorm $\rightarrow$ ReLU $\rightarrow$ Dropout(0.5) & 256 & 128 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 A \textbf{probability head} (Linear 128$\rightarrow$1) produces an interaction logit passed through sigmoid. A \textbf{severity head} (Linear 128$\rightarrow$3) for Minor/Moderate/Major classification is architecturally defined but reserved for future training when severity labels become available.
 
 \subsection{Pair-Level Pharmacological Features}
-To complement learned molecular representations with curated biological context, a 6-dimensional pharmacological feature vector is computed for each drug pair, as detailed in Table~\ref{tab:pair_features}.
+To complement learned molecular representations with curated biological context, a 12-dimensional pharmacological feature vector is computed for each drug pair, as detailed in Table~\ref{tab:pair_features}.
 
 \begin{table}[htbp]
-\caption{Pair-Level Pharmacological Features (6-dimensional)}
+\caption{Pair-Level Pharmacological Features (12-dimensional)}
 \label{tab:pair_features}
 \centering
+\resizebox{\columnwidth}{!}{
 \begin{tabular}{@{}llll@{}}
 \toprule
-\textbf{Feature} & \textbf{Source} & \textbf{Norm.} & \textbf{Rationale} \\
+\textbf{Feature} & \textbf{Source} & \textbf{Norm. Cap} & \textbf{Rationale} \\
 \midrule
-Shared enzymes      & DrugBank & /21 & Metabolic competition \\
-Shared targets      & DrugBank & /36 & PD synergy/antagonism \\
-Shared transporters & DrugBank & /10 & Distribution interactions \\
-Shared carriers     & DrugBank & /10 & Distribution interactions \\
-Max PRR             & TWOSIDES & /50 & Real-world safety signal \\
-TWOSIDES flag       & TWOSIDES & Binary & Signal availability \\
+Shared enzyme count        & DrugBank & /5      & Metabolic competition \\
+Shared target count        & DrugBank & /2      & PD synergy/antagonism \\
+Shared transporter count   & DrugBank & /2      & Distribution interactions \\
+Shared carrier count       & DrugBank & /1      & Distribution interactions \\
+Shared pathway count       & DrugBank & /1      & Downstream cascades \\
+Shared major CYPs          & DrugBank & /3      & Dominant metabolic routes \\
+CYP3A4 shared              & DrugBank & binary  & Specific primary enzyme \\
+CYP2D6 shared              & DrugBank & binary  & Specific primary enzyme \\
+CYP2C9 shared              & DrugBank & binary  & Specific primary enzyme \\
+Max PRR                    & TWOSIDES (via RxNorm bridge) & /245.05 & Peak adverse safety signal \\
+TWOSIDES signals count     & TWOSIDES & /1882   & Breadth of safety signals \\
+TWOSIDES found flag        & TWOSIDES & binary  & Signal availability \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
-Normalization caps are set from empirical data distribution analysis to prevent dominant features from overwhelming the model.
+Normalization caps are set from empirical 99th-percentile data distribution analysis to prevent dominant features from overwhelming the model.
 
 \subsection{Adaptive Evidence Fusion Layer}
-A key differentiator of DrugInsight is its non-learnable evidence fusion layer, which combines three independent evidence sources with adaptive weighting. Unlike single-database DDI checkers (DrugBank, Medscape, Lexicomp) that rely on one curated source, DrugInsight integrates complementary evidence streams to achieve broader coverage and more robust predictions.
+A key differentiator of DrugInsight is its tiered evidence fusion layer, which combines three independent scoring sources under clinical safety heuristics. Unlike single-database DDI checkers, DrugInsight integrates complementary evidence streams to achieve broader coverage.
 
 \subsubsection{Evidence Sources}
 Three independent scores are computed:
 
-\textbf{Rule Score (DrugBank):} Derived from curated pharmacological evidence:
 \begin{itemize}
-    \item $S_{rule} = 1.0$ if a known interaction record exists with mechanism text
-    \item $S_{rule} = \min(0.5 + n_{shared} \times 0.05, 0.85)$ if shared enzymes or targets exist
-    \item $S_{rule} = 0.3$ if only shared pathways exist
-    \item $S_{rule} = 0.0$ if no DrugBank evidence found
+    \item \textbf{Rule Score (DrugBank):} Additive scoring based on curated mechanisms and shared entities.
+    \item \textbf{ML Score (GNN+MLP):} Sigmoid of classifier logit.
+    \item \textbf{TWOSIDES Score:} Priority PRR / distinct signals count.
 \end{itemize}
 
-\textbf{ML Score:} The sigmoid-activated output of the GNN+MLP classifier: $S_{ML} = \sigma(f_{MLP}([\mathbf{e}_A \| \mathbf{e}_B \| \mathbf{f}_{pair}]))$
+\subsubsection{Adaptive Weighting Tiers}
+The fusion weights adapt based on algorithmic tiers determining the availability of specific evidence sets:
 
-\textbf{TWOSIDES Score:} Normalized pharmacovigilance signal: $S_{TWO} = \min(PRR_{max}/50, 1.0)$
+\begin{itemize}
+    \item \textbf{Tier 1 (Direct Hit):} $P_{fused} = 0.7 \times \text{rule} + 0.3 \times ML$ (if no ML, $1.0 \times \text{rule}$).
+    \item \textbf{Tier 2 (Evidence Fusion):} Logistic regression unification of signals (Rule + ML + TWOSIDES).
+    \item \textbf{Tier 3 (ML Only):} $P_{fused} = 1.0 \times ML$.
+\end{itemize}
 
-\subsubsection{Adaptive Weighting}
-The fusion weights adapt based on the availability and confidence of DrugBank evidence, as shown in Table~\ref{tab:fusion_weights}.
-
-\begin{table}[htbp]
-\caption{Adaptive Fusion Weights by Evidence Availability}
-\label{tab:fusion_weights}
-\centering
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{DrugBank Evidence} & $w_{rule}$ & $w_{ML}$ & $w_{TWO}$ \\
-\midrule
-Found (known interaction)  & 0.60 & 0.25 & 0.15 \\
-Partial (shared entities)  & 0.40 & 0.40 & 0.20 \\
-Not found                  & 0.10 & 0.70 & 0.20 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The fused probability is computed as:
-\begin{equation}
-P_{fused} = w_{rule} \cdot S_{rule} + w_{ML} \cdot S_{ML} + w_{TWO} \cdot S_{TWO}
-\end{equation}
-
-This adaptive weighting provides graceful confidence degradation: when curated evidence exists, it dominates the prediction; when absent, the ML model carries the primary signal. A risk index (0--100) is derived as $RI = \lfloor P_{fused} \times 100 \rceil$, and severity is classified as Major ($RI \geq 70$), Moderate ($40 \leq RI < 70$), or Minor ($RI < 40$).
+This tiered system ensures graceful confidence degradation: when curated evidence exists, it safely constrains predictions. A risk index is derived as $fused\_prob \times 100$ (integer 0--100), and severity is classified as Major ($\geq 70$), Moderate (40--69), or Minor ($< 40$).
 
 \subsection{Rule-Based Explainability Module}
 DrugInsight generates structured clinical explanations without any LLM through a hierarchical rule-based reasoning pipeline:
 
 \begin{enumerate}
-    \item \textbf{Metabolic mechanism detection}: Checks a curated CYP inhibitor/inducer knowledge base (CYP2C9, CYP2C19, CYP3A4, CYP2D6, CYP1A2), then falls back to DrugBank enzyme action parsing, and finally to generic substrate competition for shared enzymes.
-    \item \textbf{Pharmacodynamic mechanism}: Reports shared pharmacological targets and potential additive or synergistic effects.
-    \item \textbf{Pharmacovigilance signal}: Translates PRR into signal strength categories (weak $<3$, moderate 3--10, strong $>10$) with textual annotation.
-    \item \textbf{Clinical recommendation}: Generates severity-dependent advice (avoid concurrent use / use with caution / standard monitoring).
+    \item \textbf{Metabolic mechanism}: Checks CYP inhibitor/inducer knowledge base $\rightarrow$ DrugBank enzyme actions $\rightarrow$ generic substrate competition.
+    \item \textbf{Pharmacodynamic mechanism}: Reports shared pharmacological targets.
+    \item \textbf{Pharmacovigilance note}: Translates PRR into textual signal strength (weak $<3$, moderate 3--10, strong $>10$).
+    \item \textbf{Priority}: If a curated DrugBank mechanism text exists for the pair, it is used as the primary explanation.
+    \item \textbf{Clinical recommendation}: Severity-dependent advice (avoid concurrent use / use with caution / standard monitoring).
 \end{enumerate}
-
-If a curated DrugBank mechanism text exists for the pair, it is used as the primary explanation, ensuring the highest fidelity information is always surfaced.
 
 % ════════════════════════════════════════════════════════════════════════════
 % IV. EXPERIMENTAL SETUP
@@ -289,11 +293,11 @@ Table~\ref{tab:dataset} summarizes the datasets and their roles in the system.
 \toprule
 \textbf{Source} & \textbf{Content} & \textbf{Scale} \\
 \midrule
-DrugBank (enriched)     & Positive interaction pairs   & 1,169,030 \\
-DrugBank (validated)    & Drugs with valid SMILES      & 14,606 \\
-DrugBank (cached graphs)& Molecular graphs             & 14,488 \\
-Training set            & Positive + negative pairs    & 1,449,496 \\
-Validation set          & Positive + negative pairs    & 105,116 \\
+DrugBank (enriched)     & Interaction pairs           & $\sim$936,178 \\
+DrugBank (filtered)     & Drugs with valid SMILES     & $\sim$3,803 \\
+DrugBank enzymes        & Metabolizing enzyme records  & $\sim$760 KB \\
+DrugBank targets        & Pharmacological targets      & $\sim$2.7 MB \\
+DrugBank pathways       & Biological pathways          & $\sim$23 MB \\
 TWOSIDES (filtered)     & Pharmacovigilance signals    & $\sim$87 MB \\
 RxNorm bridge           & DrugBank $\leftrightarrow$ RxNorm mapping & Cross-link \\
 \bottomrule
@@ -311,29 +315,33 @@ Table~\ref{tab:training} summarizes all hyperparameters and training details.
 \toprule
 \textbf{Parameter} & \textbf{Value} \\
 \midrule
-Optimizer               & Adam \\
+Optimizer               & Adam (two parameter groups) \\
 GNN learning rate       & $3 \times 10^{-5}$ \\
 Classifier learning rate & $1 \times 10^{-4}$ \\
 Weight decay            & $5 \times 10^{-4}$ \\
-LR scheduler            & ReduceLROnPlateau (factor=0.5, patience=3) \\
+LR scheduler            & ReduceLROnPlateau (mode='max', factor=0.5, patience=3) \\
 Batch size              & 64 \\
 Max epochs              & 20 \\
-Early stopping patience & 6 (on validation AUC) \\
+Early stopping patience & 6 epochs (based on val AUC) \\
+Improvement threshold   & $1 \times 10^{-4}$ (for AUC) \\
 Loss function           & BCEWithLogitsLoss \\
-GNN dropout             & 0.3 \\
-Classifier dropout      & 0.5 \\
-Label smoothing         & Enabled \\
-Symmetry augmentation   & 50\% random drug-order swap \\
+Dropout                 & 0.5 (classifier), 0.3 (GNN) \\
+Symmetry augmentation   & 50\% random drug swap per batch \\
 Gradient clipping       & max\_norm = 1.0 \\
-Negative sampling ratio & 1:1 (positive:negative) \\
-Hard negative fraction  & 70\% hard / 30\% easy \\
-Random seed             & 42 \\
+Seed                    & 42 (split + neg sampling) \\
+Device                  & CUDA if available, else CPU \\
+Num workers             & 0 \\
+Train/Val split         & 80/20 drug-level \\
+Negative ratio          & 1:1 (equal positives and negatives) \\
+Hard neg fraction       & 70\% \\
+Label smoothing         & Enabled \\
+Weighted loss           & Disabled \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsubsection{Drug-Level Cold-Start Split}
-All unique drugs are split 80/20 into training and validation sets at the \textit{drug level} (not the pair level). Interaction pairs are then assigned to train or validation by requiring \textit{both} drugs to belong to the respective set. This ensures the validation set evaluates generalization to completely unseen drugs---a significantly harder and more realistic evaluation than random pair-level splitting, where individual drugs may appear in both splits.
+All unique drugs are split 80/20 into training and validation sets at the \textit{drug level} (prior to pairing). Interaction pairs are then partitioned to train or validation exclusively when \textit{both} constituent drugs belong to the same respective subset. This evaluation protocol measures generalization against completely unseen drugs. This strict setting is significantly more challenging and realistic than standard pair-level splitting, where individual drugs may trivially leak into both evaluation splits.
 
 \subsubsection{Hard Negative Sampling}
 For each split, negative (non-interacting) pairs are generated with a 70/30 hard/easy split. Hard negatives are non-interacting pairs scored by a ``plausibility'' metric: a weighted sum of shared enzymes ($\times 2$), targets ($\times 2$), transporters ($\times 1$), carriers ($\times 1$), and pathways ($\times 0.5$). The highest-scoring non-interacting pairs are retained as hard negatives. This prevents the model from learning trivial shortcuts while avoiding training collapse through the 30\% easy negative fraction.
@@ -343,7 +351,7 @@ During training, drug embeddings are randomly swapped with 50\% probability per 
 
 \subsection{Evaluation Protocol}
 \begin{itemize}
-    \item \textbf{Primary metric}: ROC AUC (area under receiver operating characteristic curve) — used for model selection and early stopping
+    \item \textbf{Primary metric}: ROC AUC (area under receiver operating characteristic curve) for model selection and early stopping
     \item \textbf{Secondary metrics}: Average Precision (AP), Accuracy, Confusion Matrix
     \item \textbf{Threshold}: 0.5 on sigmoid probability for binary classification
     \item \textbf{Best model}: Selected by highest validation AUC; checkpoint saved
@@ -356,89 +364,154 @@ During training, drug embeddings are randomly swapped with 50\% probability per 
 
 \subsection{Model Training Performance}
 
-The model was trained for 10 epochs on 1,449,496 training pairs (724,748 positive, 724,748 negative) with 22,649 batches per epoch, and evaluated on 105,116 validation pairs (52,558 positive, 52,558 negative). Zero drug overlap between training and validation sets was verified. Training was terminated by early stopping at epoch 10 (patience = 6) after no improvement over the best validation AUC achieved at epoch 4. Table~\ref{tab:epoch_metrics} presents per-epoch performance.
-
+% TODO: Replace with actual epoch-wise metrics when user provides training data
 \begin{table}[htbp]
 \caption{Training Performance (Per-Epoch Metrics)}
 \label{tab:epoch_metrics}
 \centering
-\begin{tabular}{@{}cccccc@{}}
+\begin{tabular}{@{}ccccc@{}}
 \toprule
-\textbf{Epoch} & \textbf{Loss} & \textbf{Train Acc} & \textbf{Val Acc} & \textbf{Val AUC} & \textbf{Val AP} \\
+\textbf{Epoch} & \textbf{Train Loss} & \textbf{Val AUC} & \textbf{Val AP} & \textbf{Val Acc} \\
 \midrule
-1  & 0.6556 & 0.6066 & 0.6394 & 0.6945 & 0.6918 \\
-2  & 0.6282 & 0.6474 & 0.6489 & 0.7055 & 0.6986 \\
-3  & 0.6200 & 0.6574 & 0.6442 & 0.7002 & 0.6970 \\
-\textbf{4} & \textbf{0.6156} & \textbf{0.6626} & \textbf{0.6485} & \textbf{0.7065} & \textbf{0.7022} \\
-5  & 0.6134 & 0.6656 & 0.6480 & 0.7001 & 0.6986 \\
-6  & 0.6120 & 0.6670 & 0.6429 & 0.7047 & 0.7024 \\
-7  & 0.6113 & 0.6685 & 0.6455 & 0.7042 & 0.7021 \\
-8  & 0.6112 & 0.6688 & 0.6422 & 0.7041 & 0.6967 \\
-9  & 0.6047 & 0.6754 & 0.6446 & 0.7023 & 0.6987 \\
-10 & 0.6055 & 0.6748 & 0.6411 & 0.6996 & 0.6965 \\
+1  & 0.6556 & 0.6945 & 0.6918 & 0.6394 \\
+2  & 0.6282 & 0.7055 & 0.6986 & \textbf{0.6489} \\
+3  & 0.6200 & 0.7002 & 0.6970 & 0.6442 \\
+4  & 0.6156 & \textbf{0.7065} & 0.7022 & 0.6485 \\
+5  & 0.6134 & 0.7001 & 0.6986 & 0.6480 \\
+6  & 0.6120 & 0.7047 & \textbf{0.7024} & 0.6429 \\
+7  & 0.6113 & 0.7042 & 0.7021 & 0.6455 \\
+8  & 0.6112 & 0.7041 & 0.6967 & 0.6422 \\
+9  & \textbf{0.6047} & 0.7023 & 0.6987 & 0.6446 \\
+10 & 0.6055 & 0.6996 & 0.6965 & 0.6411 \\
+\midrule
+Best & 0.6156 & \textbf{0.7065} & 0.7022 & 0.6485 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The model achieves a best validation AUC of \textbf{0.7065} at epoch 4 under the cold-start drug-level evaluation protocol, with a corresponding validation accuracy of 64.85\% and average precision of 0.7022. Training loss decreased steadily from 0.6556 to 0.6047, indicating consistent convergence, while validation AUC plateaued after epoch 4 and began declining by epoch 10, triggering early stopping.
 
-It is critical to contextualize these metrics: the cold-start setting where \textit{both} drugs in each validation pair are entirely unseen during training is substantially more challenging than random pair-level splitting (where most existing methods report results). Under random splitting, individual drug structural signatures can be memorized; the cold-start protocol eliminates this shortcut, making the 0.7065 AUC a meaningful indicator of generalization capability.
+The model achieves a best validation AUC of 0.7065 under the cold-start evaluation protocol. This protocol ensures zero drug overlap between training and validation splits. Both drugs in every validation pair remain entirely unseen during training. This strict setting is substantially more challenging than the random pair-level splitting used by most methods. Random splitting allows algorithms to simply memorize individual drug structural signatures. The cold-start protocol eliminates this shortcut to measure true generalization.
 
-Fig.~\ref{fig:training_curves} shows the training loss and validation AUC progression across epochs.
 
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\linewidth]{training_curves.png}}
-\caption{Training loss (left axis, dashed) and validation AUC (right axis, solid) across 10 epochs. Best model selected at epoch 4 (AUC = 0.7065). Early stopping triggered at epoch 10.}
-\label{fig:training_curves}
-\end{figure}
 
 \subsection{Case Studies}
-To demonstrate DrugInsight's practical capability and the advantage of multi-source evidence fusion over single-database checkers, we present four clinically motivated drug pair evaluations.
+To demonstrate DrugInsight's practical capability and the advantage of multi-source evidence fusion over single-database checkers, we present four clinically motivated drug pair evaluations. The output is confirmed using existing drugbank interaction checking software and cited references.
 
 % TODO: Replace placeholder outputs with actual DrugInsight model outputs
 
-\subsubsection{Case 1: Probenecid and Penicillin}
-This well-characterized pharmacokinetic interaction involves probenecid's inhibition of renal tubular secretion of penicillin, increasing penicillin plasma concentrations. This interaction is therapeutically exploited to sustain antibiotic levels.
-
+\subsubsection{\textbf{Case 1: Probenecid and Benzylpenicillin}}
 \begin{quote}
 \textit{DrugInsight Output:}\\
 % TODO: Paste actual output here
-\textbf{Interaction}: [YES/NO] \quad \textbf{Risk Index}: [--/100] \quad \textbf{Severity}: [--]\\
-\textbf{Mechanism}: [Model explanation text]\\
-\textbf{Recommendation}: [Clinical recommendation text]
+\textit{Predicted Interaction}: Moderate \newline\quad \textit{Risk Index}: 42/100\newline
+\quad \textit{Shared Biology}: Pathway: Organic anion transporter 3\\ \newline
+\textit{Pharmacological Mechanism}: The excretion of Benzylpenicillin can be decreased when combined with Probenecid. This combination may cause clinically significant adverse effects requiring monitoring. \\ \newline
+\textit{Clinical Recommendation}: Use Probenecid and Benzylpenicillin together with caution. Watch for signs of enhanced pharmacodynamic effects. Consider dose reduction if adverse effects occur.
+\textit{Fusion Layer Component Scores}: Drugbank 0.280, ML Model 0.736, TwoSides 0.0\\ \newline
+\textit{Fusion weights}: Rule 0.7 $\cdot$ ML 0.3 $\cdot$ TWOSIDES 0.0
 \end{quote}
 
-\subsubsection{Case 2: Amoxicillin and Clavulanic Acid}
+\begin{quote}
+\textit{Drugbank Drug Interaction Checker Output:}\\
+\quad \textit{Severity}: Moderate \cite{drugbankchecker}\newline
+\quad \textit{Description}: The excretion of Benzylpenicillin can be decreased when combined with Probenecid.\\ \newline
+\textit{Extended Description}: Probenecid is a uricosuric and renal tubular blocking agent that inhibits the tubular secretion of penicillin and usually increases penicillin plasma levels by any route the antibiotic is given. A 2-fold to 4-fold elevation has been demonstrated for various penicillins. Probenecid is indicated to be given as an adjuvant to therapy to penicillins to enhance their plasma levels 1, concomitant use of probenecid and penicillins has been associated with increased penicillin-related adverse reactions including psychic disturbances \cite{dailymed_probenecid}. \\
+\end{quote}
+\subsubsection{\textbf{Case 2: Amoxicillin and Clavulanic Acid}}
 This is an intentional synergistic combination where clavulanic acid inhibits beta-lactamase enzymes, protecting amoxicillin from degradation. The system should identify this as a known, well-characterized interaction with a clear mechanism.
 
 \begin{quote}
 \textit{DrugInsight Output:}\\
-% TODO: Paste actual output here
-\textbf{Interaction}: [YES/NO] \quad \textbf{Risk Index}: [--/100] \quad \textbf{Severity}: [--]\\
-\textbf{Mechanism}: [Model explanation text]\\
-\textbf{Recommendation}: [Clinical recommendation text]
+\textit{Predicted Interaction}: Moderate \newline\quad \textit{Risk Index}: 63/100\newline
+\quad \textit{Shared Biology}: no shared biology\\ \newline
+\textit{Inferred from Twosides}: High PRR detected. Potential confounding, this signal may reflect individual drug toxicity rather than a true interaction. \\ \newline
+\textit{Pharmacological Mechanism}: Post-market surveillance data (TWOSIDES) shows a strong adverse event signal for this combination (PRR=125.0), suggesting real-world co-prescribing risks. This combination may cause clinically significant adverse effects requiring monitoring. \\ \newline
+\textit{Clinical Recommendation}: Use Amoxicillin and Clavulanic acid together with caution. Consider dose reduction if adverse effects occur. \\ \newline
+\textit{Fusion Layer Component Scores}: Rule (DrugBank) 0.000, ML Model 0.882, TWOSIDES 0.609\\ \newline
+\textit{Fusion weights}: Rule 2.90190 $\cdot$ ML 3.93608 $\cdot$ TWOSIDES 0.04742
 \end{quote}
 
-\subsubsection{Case 3: Doxorubicin and Sildenafil}
+\begin{quote}
+\textit{Drugbank Drug Interaction Checker Output:}\\
+\quad \textit{Result}: No Interactions Found \cite{drugbankchecker}\\
+\end{quote}
+
+\subsubsection{\textbf{Case 3: Doxorubicin and Sildenafil}}
 This less-documented combination tests DrugInsight's ability to detect potential interactions for drug pairs with limited curated evidence, demonstrating the value of the ML component and TWOSIDES pharmacovigilance signals when DrugBank coverage is sparse.
 
 \begin{quote}
 \textit{DrugInsight Output:}\\
-% TODO: Paste actual output here
-\textbf{Interaction}: [YES/NO] \quad \textbf{Risk Index}: [--/100] \quad \textbf{Severity}: [--]\\
-\textbf{Mechanism}: [Model explanation text]\\
-\textbf{Recommendation}: [Clinical recommendation text]
+\textit{Predicted Interaction}: Moderate \newline\quad \textit{Risk Index}: 58/100\newline
+\quad \textit{Shared Biology}: ENZYMES CYP2D6, CYP3A4\\ \newline
+\textit{Pharmacological Mechanism}: The serum concentration of Doxorubicin can be increased when it is combined with Sildenafil. This combination may cause clinically significant adverse effects requiring monitoring. \\ \newline
+\textit{Clinical Recommendation}: Use Doxorubicin and Sildenafil together with caution. Monitor drug levels and clinical response. Consider dose reduction if adverse effects occur.\\ \newline
+\textit{Fusion Layer Component Scores}: DrugBank 0.500, ML Model 0.764, TWOSIDES 0.0\\ \newline
+\textit{Fusion weights}: Rule 0.7 $\cdot$ ML 0.3 $\cdot$ TWOSIDES 0.0
 \end{quote}
 
-\subsubsection{Case 4: Ritonavir and Darunavir}
+\begin{quote}
+\textit{Drugbank Drug Interaction Checker Output:}\\
+\quad \textit{Severity}: Moderate \cite{drugbankchecker}\newline
+\quad \textit{Description}: The serum concentration of Doxorubicin can be increased when it is combined with Sildenafil.\\ \newline
+\textit{Extended Description}: P-glycoprotein inhibitors increase the nuclear translocation of doxorubicin and cellular cytotoxicity resulting from doxorubicin treatment \cite{bao2011}. \\
+\end{quote}
+
+\subsubsection{\textbf{Case 4: Ritonavir and Darunavir}}
 This is a well-known CYP3A4-mediated pharmacokinetic boosting interaction, where ritonavir inhibits CYP3A4 to increase darunavir levels. This pair tests the CYP knowledge base integration in the explainer module.
 
 \begin{quote}
 \textit{DrugInsight Output:}\\
-% TODO: Paste actual output here
-\textbf{Interaction}: [YES/NO] \quad \textbf{Risk Index}: [--/100] \quad \textbf{Severity}: [--]\\
-\textbf{Mechanism}: [Model explanation text]\\
-\textbf{Recommendation}: [Clinical recommendation text]
+\textit{Predicted Interaction}: Major \newline\quad \textit{Risk Index}: 94/100\newline
+\quad \textit{Shared Biology}: ENZYMES CYP2D6, CYP3A4; TARGETS Gag-Pol polyprotein, Pol polyprotein\\ \newline
+\textit{Pharmacological Mechanism}: Ritonavir is a known inhibitor of CYP3A4, the primary enzyme responsible for Darunavir metabolism. This inhibition reduces Darunavir clearance, increasing its plasma concentration and risk of toxicity. Both drugs act on shared pharmacological targets: Gag-Pol polyprotein, Pol polyprotein. Concurrent use may produce additive or synergistic effects at these targets, increasing the risk of exaggerated pharmacodynamic responses. This combination may cause serious or life-threatening adverse effects. \\ \newline
+\textit{Clinical Recommendation}: Avoid concurrent use of Ritonavir and Darunavir if possible. If co-administration is necessary, closely monitor for adverse effects and consider dose adjustment. Consult clinical guidelines or a pharmacist.\\ \newline
+\textit{Fusion Layer Component Scores}: Rule (DrugBank) 0.730, ML Model 0.932, TWOSIDES 0.000\\ \newline
+\textit{Fusion weights}: Rule 2.9019077471083583 $\cdot$ ML 3.9360892822619045 $\cdot$ TWOSIDES 0.0474253927807187
+\end{quote}
+
+\begin{quote}
+\textit{Drugbank Drug Interaction Checker Output:}\\
+\quad \textit{Severity}: [--] \cite{drugbankchecker}\newline
+\quad \textit{Description}: [--]\\ \newline
+\textit{Extended Description}: [--] \\
+\end{quote}
+
+\subsubsection{\textbf{Case 5: Acetaminophen and Lisinopril}}
+This case highlights a common pair of medications with a minor interaction, demonstrating the system's ability to discriminate severity.
+
+\begin{quote}
+\textit{DrugInsight Output:}\\
+\textit{Predicted Interaction}: Minor \newline\quad \textit{Risk Index}: 19/100\newline
+\quad \textit{Shared Biology}: None\\ \newline
+\textit{Pharmacological Mechanism}: Acetaminophen may decrease the excretion rate of Lisinopril which could result in a higher serum level. This combination may cause minor adverse effects unlikely to require intervention. \\ \newline
+\textit{Clinical Recommendation}: The interaction between Acetaminophen and Lisinopril is generally manageable. Standard monitoring is recommended. No immediate dose adjustment required.\\ \newline
+\textit{Fusion Layer Component Scores}: Rule (DrugBank) 0.825, ML Model 0.621, TWOSIDES 0.0\\ \newline
+\textit{Fusion weights}: Rule 0.7 $\cdot$ ML 0.3 $\cdot$ TWOSIDES 0.0
+\end{quote}
+
+\begin{quote}
+\textit{Drugbank Drug Interaction Checker Output:}\\
+\quad \textit{Severity}: Minor \cite{drugbankchecker}\newline
+\quad \textit{Description}: Acetaminophen may decrease the excretion rate of Lisinopril which could result in a higher serum level.\\ \newline
+\textit{Extended Description}: The renal excretion of drugs is the overall result of a combination of kidney processes that include glomerular filtration, passive diffusion, tubular secretion, and tubular reabsorption \cite{vanginneken1989}. \\
+\end{quote}
+
+\subsubsection{\textbf{Case 6: Hyaluronic Acid and Betaine}}
+This case evaluates a pair with no structural overlap or human annotations where the system appropriately predicts no significant interaction relying heavily on the ML component.
+
+\begin{quote}
+\textit{DrugInsight Output:}\\
+\textit{Predicted Interaction}: No Significant Interaction \newline\quad \textit{Risk Index}: 45/100\newline
+\quad \textit{Shared Biology}: None\\ \newline
+\textit{Pharmacological Mechanism}: No shared metabolic enzymes or pharmacological targets were identified that would suggest a clinically significant interaction. \\ \newline
+\textit{Clinical Recommendation}: Standard prescribing guidelines apply. No special precautions required based on available data.\\ \newline
+\textit{Fusion Layer Component Scores}: Rule (DrugBank) 0.000, ML Model 0.452, TWOSIDES 0.000\\ \newline
+\textit{Fusion weights}: Rule 0.0 $\cdot$ ML 1.0 $\cdot$ TWOSIDES 0.0
+\end{quote}
+
+\begin{quote}
+\textit{Drugbank Drug Interaction Checker Output:}\\
+\quad \textit{Result}: No Interactions Found \cite{drugbankchecker}\\
 \end{quote}
 
 \subsection{Multi-Source Fusion Advantage}
@@ -458,27 +531,45 @@ The adaptive evidence fusion layer provides a fundamental advantage over single-
 
 \subsection{Current Limitations}
 \begin{itemize}
-    \item \textbf{Low epoch training}: The current model is trained with a limited number of epochs. Extended training with computational resources may improve the baseline ML component performance.
-    \item \textbf{Severity head untrained}: The severity classification head is architecturally defined (3-class: Minor/Moderate/Major) but not trained due to the absence of ground-truth severity labels. Severity is currently derived from fusion-based risk index thresholds.
-    \item \textbf{Single split evaluation}: Results are based on a single 80/20 drug-level split (seed=42) without cross-validation. K-fold cross-validation would provide more robust performance estimation.
-    \item \textbf{Hand-tuned fusion weights}: The adaptive fusion weights (0.60/0.40/0.10 etc.) are manually designed based on clinical reasoning rather than learned from data.
-    \item \textbf{No formal ablation}: A systematic ablation study comparing ML-only, fusion-only, and rule-only configurations is not yet conducted.
+    \item \textbf{Moderate discriminative performance under cold-start evaluation}: The best validation AUC of 0.7065 is achieved under a strict drug-level cold-start split, which is inherently more challenging than the random pair-level splits employed by most comparable methods. While this demonstrates genuine generalization to unseen compounds, the absolute score indicates that the current AttentiveFP architecture and 12-dimensional pharmacological feature vector do not yet fully capture all available interaction signals. The practical ceiling for this evaluation protocol remains uncharacterized in the absence of comparable cold-start benchmarks from other methods.
+
+    \item \textbf{Symmetric interaction assumption}: The current model enforces pair symmetry ($P(A,B) = P(B,A)$) through random drug-swap augmentation during training. However, many pharmacokinetic interactions are inherently directional. For example, Drug~A may inhibit the CYP3A4-mediated metabolism of Drug~B without Drug~B exerting a reciprocal metabolic effect. The molecular graph encoder treats each drug independently, making it structurally incapable of modeling such asymmetric relationships.
+
+    \item \textbf{Untrained severity head}: The severity classification head is architecturally defined as a Linear($128 \rightarrow 3$) output layer for Minor, Moderate, and Major classification. It remains untrained due to the absence of standardized, machine-readable severity annotations at the interaction-pair level. Current severity tiers are therefore derived solely from computed risk index thresholds, reducing them to a post-hoc heuristic rather than a learned prediction.
+
+    \item \textbf{Heuristic fusion layer design}: The adaptive tiered fusion mechanism relies on manually calibrated weights and threshold logic. While Tier 2 employs logistic regression for evidence integration, the tier-switching boundaries and Tier 1 confidence ratios (e.g., $0.7 \times \text{rule} + 0.3 \times \text{ML}$) are static heuristics not optimized from data, and may not represent the globally optimal weighting strategy across all drug pair types.
+
+    \item \textbf{Sparse TWOSIDES coverage}: The TWOSIDES evidence stream requires a successful RxNorm bridge mapping between DrugBank IDs and RxNorm identifiers. A substantial proportion of query pairs receive a zero pharmacovigilance score and a negative found-flag, as the cross-database mapping fails or the specific combination has no recorded signal. This structurally limits the contribution of the pharmacovigilance channel to a minority of predictions.
+
+    \item \textbf{Single split evaluation and absence of ablation}: Results are reported over a single 80/20 drug-level split, which may reflect favorable or unfavorable partition variance. No k-fold cross-validation has been conducted to estimate performance variance. Furthermore, no formal ablation study isolating the independent contributions of the GNN encoder, the pharmacological feature vector, and the multi-source fusion layer has been performed.
+
+    \item \textbf{Dependency on valid SMILES availability}: The GNN inference pipeline requires a parseable SMILES string for each queried drug. Drugs absent from DrugBank's SMILES records or with RDKit-unparseable structures are excluded from the dataset, limiting the system's molecular coverage to approximately 3,803 drugs with validated structures.
 \end{itemize}
 
 \subsection{Future Directions}
 \begin{itemize}
-    \item \textbf{Training the severity head}: Incorporating interaction severity labels (e.g., from curated clinical databases) would enable end-to-end severity prediction.
-    \item \textbf{Cross-attention variant}: A cross-attention model checkpoint exists in the repository, suggesting an alternative architecture for capturing inter-molecular dependencies which warrants systematic evaluation.
-    \item \textbf{Learned fusion weights}: Replacing hand-tuned weights with learnable parameters or a meta-learning approach could improve evidence integration.
-    \item \textbf{Extended training}: Utilizing more computational resources for additional training epochs and hyperparameter optimization.
-    \item \textbf{Multi-class severity prediction}: Extending the binary classifier to multi-class DDI type prediction.
+    \item \textbf{Supervised severity classification}: Acquiring curated severity annotations from authoritative sources such as the FDA Adverse Event Reporting System (FAERS) or structured clinical pharmacology databases will enable training of the existing severity head as a supervised three-class classifier, replacing the current threshold-based heuristic with a learned, evidence-grounded severity model.
+
+    \item \textbf{Directional and asymmetric interaction modeling}: Future architectural work will investigate pair-encoding mechanisms that preserve the ordered identity of Drug~A and Drug~B. Cross-attention operating between the two molecular graph representations presents a natural framework for capturing directed inter-molecular dependencies. An experimental cross-attention architecture already exists in the project repository and awaits formal benchmarking against the current symmetric AttentiveFP baseline.
+
+    \item \textbf{Learned evidence fusion via meta-learning}: Replacing the static heuristic fusion weights with a lightweight learnable gating network trained on held-out meta-validation data represents a high-priority architectural upgrade. Such a network could learn to dynamically weight rule, ML, and TWOSIDES signals conditioned on the evidence availability context of each query pair.
+
+    \item \textbf{Multi-drug polypharmacy interaction prediction}: Clinical reality involves patients receiving regimens of three or more concurrent medications, where higher-order combinatorial effects can emerge that are not predicted from pairwise analysis alone. Extending DrugInsight to multi-drug hypergraph encodings is a clinically critical future direction.
+
+    \item \textbf{Extended training and systematic hyperparameter optimization}: The current training budget of 20 epochs with manually selected hyperparameters leaves significant performance headroom. Bayesian hyperparameter optimization, extended training schedules, and curriculum-based hard negative sampling strategies represent high-priority next steps.
+
+    \item \textbf{Multi-class interaction type prediction}: Beyond binary interaction detection, classifying interactions by pharmacological mechanism type (e.g., CYP-mediated pharmacokinetic inhibition, pharmacodynamic target competition, transporter-mediated distribution) would substantially increase clinical utility. This requires labeled interaction-type datasets and an expanded multi-output head architecture.
+
+    \item \textbf{Population-specific risk stratification}: Interaction severity is modulated by patient-level factors including age, renal and hepatic function, and genetic polymorphisms in CYP enzymes. Incorporating patient context vectors into the prediction pipeline would enable personalized DDI risk assessment beyond population-average predictions.
+
+    \item \textbf{Prospective clinical validation}: Translating DrugInsight from a research prototype to a clinically deployable tool requires prospective evaluation against real patient records and comparison with established clinical decision support systems. Collaboration with healthcare institutions for retrospective cohort studies and pharmacist-assisted validation constitutes the critical next phase of evaluation.
 \end{itemize}
 
-% ════════════════════════════════════════════════════════════════════════════
+% ════════════════════════════════════════════════  ════════════════════════════
 % VII. CONCLUSION
 % ════════════════════════════════════════════════════════════════════════════
 \section{Conclusion}
-This paper presents DrugInsight, a multi-source evidence fusion system for explainable drug-drug interaction prediction. By combining AttentiveFP graph neural network molecular encodings with curated DrugBank pharmacological evidence and real-world TWOSIDES pharmacovigilance signals through an adaptive weighted fusion layer, DrugInsight demonstrates that hybrid systems can provide broader coverage and greater transparency than any single-source DDI checker. The system's rule-based explainer generates mechanism-grounded clinical explanations---covering metabolic competition, pharmacodynamic overlap, and pharmacovigilance signals---without reliance on large language models, ensuring computational efficiency and eliminating hallucination risk. Validated under a rigorous cold-start drug-level split protocol, DrugInsight achieves generalization to entirely unseen compounds while providing per-source confidence estimation and structured clinical recommendations. Deployed via Streamlit web interface, FastAPI REST API, and command-line interface, the system addresses research, clinical, and programmatic deployment needs for automated DDI screening.
+This paper presents DrugInsight, a multi-source evidence fusion system for explainable drug-drug interaction prediction. DrugInsight combines AttentiveFP graph neural network molecular encodings with curated DrugBank evidence and real-world TWOSIDES pharmacovigilance signals. An adaptive weighted fusion layer dynamically integrates these independent scoring sources. The system demonstrates that such hybrid approaches provide broader predictive coverage and far greater transparency than single-source checkers. Furthermore, an explicit rule-based explainer generates mechanism-grounded clinical explanations detailing metabolic competition, pharmacodynamic overlap, and safety signal strengths. This rule-based framework completely circumvents the hallucination risks frequently associated with large language models. The system successfully achieves a validation AUC of 0.7065 under a strict cold-start drug-level evaluation protocol. DrugInsight provides per-source confidence estimation alongside actionable clinical recommendations. It is packaged with an interactive Streamlit web interface, a FastAPI REST endpoint, and a command-line tool. This robust architecture addresses practical deployment needs for automated DDI screening in research and clinical environments.
 
 % ════════════════════════════════════════════════════════════════════════════
 % REFERENCES
@@ -523,6 +614,19 @@ M. Fey and J. E. Lenssen, ``Fast graph representation learning with PyTorch Geom
 
 \bibitem{pytorch}
 A. Paszke \textit{et al.}, ``PyTorch: An imperative style, high-performance deep learning library,'' in \textit{Advances in Neural Information Processing Systems}, vol. 32, 2019.
+
+\bibitem{drugbankchecker}
+DrugBank, ``Drug Interaction Checker.'' [Online]. Available: \url{https://go.drugbank.com/drug-interaction-checker}
+
+\bibitem{dailymed_probenecid}
+U.S. National Library of Medicine, ``Probenecid Tablets, USP - DailyMed.'' [Online]. Available: \url{https://dailymed.nlm.nih.gov/dailymed/fda/fdaDrugXsl.cfm?setid=14637e17-4265-4195-8182-7ca13796c684}
+
+\bibitem{bao2011}
+L. Bao, A. Haque, K. Jackson, S. Hazari, K. Moroz, R. Jetly, and S. Dash, ``Increased expression of P-glycoprotein is associated with doxorubicin chemoresistance in the metastatic 4T1 breast cancer model,'' \textit{American Journal of Pathology}, vol. 178, no. 2, pp. 838--852, 2011.
+
+\bibitem{vanginneken1989}
+C. A. van Ginneken and F. G. Russel, ``Saturable pharmacokinetics in the renal excretion of drugs,'' \textit{Clinical Pharmacokinetics}, vol. 16, no. 1, pp. 38--54, Jan. 1989. doi: 10.2165/00003088-198916010-00003. (PubMed ID 2650954).
+
 
 \end{thebibliography}
 

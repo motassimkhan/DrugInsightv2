@@ -1,0 +1,31 @@
+@startuml
+' DFD Level 0 - Context Diagram
+left to right direction
+
+skinparam usecase {
+    BackgroundColor LightCyan
+    BorderColor Black
+    FontSize 13
+}
+skinparam actor {
+    BackgroundColor White
+    BorderColor Black
+}
+skinparam database {
+    BackgroundColor LightGreen
+    BorderColor Black
+}
+skinparam ArrowColor Black
+
+actor "Clinician /\nResearcher" as User
+database "DrugBank\n(SQLite)" as DB1
+database "TWOSIDES\n(SQLite)" as DB2
+
+usecase "  DrugInsight\n     System  " as SYS
+
+User --> SYS : "Drug Pair Names"
+SYS --> User : "Risk Score &\nExplanation"
+DB1 --> SYS : "Drug Features\n(IDs, SMILES, Enzymes)"
+DB2 --> SYS : "PRR Signals\n(Side Effects)"
+
+@enduml

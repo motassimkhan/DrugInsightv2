@@ -1,34 +1,21 @@
 @startuml
-left to right direction
-skinparam ActivityBackgroundColor LightYellow
+skinparam ActivityBackgroundColor White
 skinparam ActivityBorderColor Black
+skinparam ActivityBorderThickness 1.5
+skinparam ActivityFontSize 13
+skinparam ArrowColor Black
+skinparam ActivityCornerRadius 20
 
 start
 
-:Receive Drug Query;
-:Resolve Drug Names & Validate;
-
-if (Valid Graphs?) then (No)
-  :Return Error (Structure not found);
-  stop
-else (Yes)
-endif
-
-fork
-  :Convert SMILES to PyG Graph;
-  :Execute PyTorch Model\n(GNN + MLP);
-  :Yield ML Probability Score;
-fork again
-  :Fetch DrugBank Overlap\n(Enzymes, Targets, etc);
-  :Compute Rule Score;
-fork again
-  :Fetch TWOSIDES Database;
-  :Retrieve PRR Signal Score;
-end fork
-
-:Adaptive Evidence Fusion Layer;
-:Generate Narrative Explanation via Rules;
-:Return Final Risk Index & Severity;
+:Input Drug Pair Names;
+:Resolve Canonical Drug IDs;
+:Extract Features from DrugBank & TWOSIDES;
+:Convert SMILES to Molecular Graph;
+:Run GNN + MLP Inference;
+:Apply Adaptive Evidence Fusion;
+:Generate Rule-Based Explanation;
+:Return Risk Index & Severity Tier;
 
 stop
 @enduml
